@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heatmap Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: white;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .heatmap-container {
+            margin-top: 200px;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 100vw;
+            max-height: 100vh;
+            text-align: center;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #0f0f0f;
+        }
+
+        .heatmap-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            align-items: center;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+
+
+        .day-row {
+            display: flex;
+            align-items: center;
+            gap: 1px;
+            max-width: 100%;
+        }
+
+        .day-label {
+            width: 20px;
+            text-align: right;
+            margin-right: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 8px;
+            color: #8b949e;
+        }
+
+        .heatmap-cell {
+            width: 7px;
+            height: 7px;
+            border-radius: 1px;
+            margin: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .heatmap-container {
+                max-width: 95vw;
+                padding: 10px;
+            }
+            
+
+            
+            .day-label {
+                width: 15px;
+                font-size: 6px;
+                margin-right: 2px;
+            }
+            
+            .heatmap-cell {
+                width: 10px;
+                height: 10px;
+                margin: 0.3px;
+            }
+            
+
+        }
+    </style>
+</head>
+<body>
+    <div class="heatmap-container" id="heatmap">
+        <!-- Heatmap will be generated here -->
+    </div>
+
+    <script>
+        class RandomHeatmap {
+            constructor() {
+                this.heatmapContainer = document.getElementById('heatmap');
+                this.targetValue = 100;
+                this.updateInterval = null;
+                this.init();
+            }
+
+            init() {
+                this.generateHeatmap();
+                this.startRandomUpdates();
+            }
+
+            generateHeatmap() {
+                // Create heatmap data for the last 365 days with random values
+                const heatmapData = this.createRandomHeatmapData();
+                
+                let html = '<div class="heatmap-grid">';
+                
+                // Day labels (Sun, Mon, Tue, Wed, Thu, Fri, Sat)
+                const dynamicDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                
+                // Create the main grid: 7 rows (days) x exactly 365 days
+                const totalDays = Object.keys(heatmapData).length;
+                const totalWeeks = Math.ceil(totalDays / 7);
+                
+                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                    html += '<div class="day-row">';
+                    
+                    // Add day label
+                    html += `<div class="day-label">${dynamicDays[dayIndex]}</div>`;
+                    
+                    // Add week columns for this day - only for the weeks we have data
+                    for (let weekIndex = 0; weekIndex < totalWeeks; weekIndex++) {
+                        const dayOffset = weekIndex * 7 + dayIndex;
+                        const dateKey = Object.keys(heatmapData).sort()[dayOffset];
+                        
+                        if (dateKey) {
+                            const totalSeconds = heatmapData[dateKey];
+                            let color = '#161b22'; // No time studied (dark)
+                            
+                            // Light color gradient: more time = more white, all study sessions are clearly visible
+                            if (totalSeconds > 0 && totalSeconds <= 300) color = '#6A6B6A';      // 0-5 minutes (light gray)
+                            else if (totalSeconds > 300 && totalSeconds <= 600) color = '#818180';      // 5-10 minutes (lighter gray)
+                            else if (totalSeconds > 600 && totalSeconds <= 900) color = '#9A9B9A';      // 10-15 minutes (medium gray)
+                            else if (totalSeconds > 900 && totalSeconds <= 1200) color = '#B3B4B3';     // 15-20 minutes (light gray)
+                            else if (totalSeconds > 1200 && totalSeconds <= 1800) color = '#CCCDCC';    // 20-30 minutes (very light gray)
+                            else if (totalSeconds > 1800 && totalSeconds <= 2400) color = '#E5E6E5';    // 30-40 minutes (almost white)
+                            else if (totalSeconds > 2400) color = '#FFFFFF';                             // 40+ minutes (white)
+                            
+                            html += `<div class="heatmap-cell" style="background-color: ${color};"></div>`;
+                        }
+                    }
+                    
+                    html += '</div>'; // Close day row
+                }
+                
+                html += '</div>'; // Close the main flex container
+                
+                this.heatmapContainer.innerHTML = html;
+            }
+
+            createRandomHeatmapData() {
+                const heatmapData = {};
+                const today = new Date();
+                
+                // Calculate start date as exactly 365 days ago from today
+                const startDate = new Date(today);
+                startDate.setDate(today.getDate() - 365); // 365 days ago
+                
+                // Create data for exactly 364 days from start date to yesterday (excluding today)
+                const currentDate = new Date(startDate);
+                let dayCount = 0;
+                
+                while (dayCount < 364) {
+                    const dateKey = currentDate.toISOString().split('T')[0];
+                    // Generate random values up to target value (100 minutes = 6000 seconds)
+                    heatmapData[dateKey] = Math.floor(Math.random() * 6000);
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    dayCount++;
+                }
+                
+                return heatmapData;
+            }
+
+            startRandomUpdates() {
+                // Update the heatmap every 1 second with new random data
+                this.updateInterval = setInterval(() => {
+                    this.generateHeatmap();
+                }, 1000);
+            }
+
+            destroy() {
+                if (this.updateInterval) {
+                    clearInterval(this.updateInterval);
+                }
+            }
+        }
+
+        // Initialize the random heatmap when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new RandomHeatmap();
+        });
+    </script>
+</body>
+</html>
