@@ -1,0 +1,563 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0f0f0f;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    color: white;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    transition: all 0.5s ease;
+}
+
+.container.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #0f0f0f;
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    animation: focusEnter 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes focusEnter {
+    0% {
+        opacity: 0.8;
+        transform: scale(0.95);
+    }
+    50% {
+        opacity: 0.95;
+        transform: scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.container.fullscreen .timer-controls {
+    transform: scale(1.5);
+    margin-bottom: 50px;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10;
+}
+
+.container.fullscreen .timer {
+    font-size: 72px;
+    margin-bottom: 30px;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10;
+}
+
+.container.fullscreen .progress-bar {
+    width: 450px;
+    height: 12px;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10;
+}
+
+.timer-controls, .timer, .progress-bar {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.container.fullscreen .heatmap-container {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+    pointer-events: none;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    z-index: -1;
+}
+
+.container.fullscreen .log-container {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+}
+
+/* Refresh button styling */
+.refresh-btn {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 12px !important;
+}
+
+.refresh-btn:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+.refresh-btn:active {
+    transform: translateY(0) !important;
+}
+    pointer-events: none;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    z-index: -1;
+}
+
+.heatmap-container, .log-container {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timer-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.timer {
+    font-size: 48px;
+    font-weight: 400;
+    font-family: 'IBM Plex Mono', monospace;
+    min-width: 120px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.timer:hover {
+    color: #ccc;
+    transform: scale(1.02);
+}
+
+.timer:active {
+    transform: scale(0.98);
+}
+
+.progress-bar {
+    width: 300px;
+    height: 8px;
+    background-color: #333;
+    border-radius: 4px;
+    margin: 0 auto 30px;
+}
+
+.heatmap-container {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    width: 800px;
+    text-align: center;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #0f0f0f;
+}
+
+
+
+/* IBM Plex Mono specific improvements */
+input, button, textarea {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+}
+
+.control-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.control-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background-color: #333;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Special styling for shortcuts help modal close button */
+#shortcutsHelpModal .shortcut-close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+#shortcutsHelpModal .shortcut-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.setting-group {
+    margin-bottom: 20px;
+}
+
+.setting-group label {
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.setting-group input,
+.setting-group select {
+    transition: border-color 0.2s;
+}
+
+.setting-group input:focus,
+.setting-group select:focus {
+    outline: none;
+    border-color: #666;
+}
+
+#saveSettings:hover {
+    background-color: #777;
+}
+
+/* PWA Install Button */
+#installAppBtn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Timer paused state */
+.timer-controls.paused .timer {
+    opacity: 0.7;
+    color: #888;
+}
+
+.timer-controls.paused .control-btn:not(#pauseBtn) {
+    opacity: 0.5;
+}
+
+#installAppBtn:hover {
+    background: #45a049 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+#installAppBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+#installAppGroup {
+    border-top: 1px solid #444;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+
+
+/* Log Container Styles */
+.log-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #222;
+    border-bottom: 1px solid #333;
+}
+
+.log-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.log-content {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.log-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 15px 20px;
+    border-bottom: 1px solid #333;
+    transition: background-color 0.2s ease;
+}
+
+.log-entry:hover {
+    background: #222;
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-entry-info {
+    flex: 1;
+    text-align: left;
+}
+
+.log-entry-date {
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 5px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.log-entry-duration {
+    color: #ccc;
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.log-entry-time {
+    color: #888;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.log-entry-description {
+    color: #fff;
+    font-size: 14px;
+    margin-top: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-style: italic;
+}
+
+.log-entry-notes {
+    color: #ccc;
+    font-size: 13px;
+    margin-top: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    white-space: pre-wrap;
+    max-width: 400px;
+}
+
+.log-entry-image {
+    margin-top: 8px;
+}
+
+.log-entry-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.log-entry-actions button {
+    padding: 4px 8px;
+    background: #333;
+    color: #ccc;
+    border: 1px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    transition: all 0.2s ease;
+}
+
+.log-entry-actions button:hover {
+    background: #444;
+    color: white;
+}
+
+.log-entry-actions button.delete-session-btn {
+    background: #5a1a1a;
+    border-color: #7a2a2a;
+}
+
+.log-entry-actions button.delete-session-btn:hover {
+    background: #7a2a2a;
+}
+
+.empty-log {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.empty-log svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+
+
+/* Shortcuts Help Modal */
+.shortcuts-help-content {
+    max-width: 600px;
+    width: 90%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.shortcuts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.shortcut-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shortcut-item kbd {
+    background: #333;
+    border: 1px solid #666;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #fff;
+    min-width: 60px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.shortcut-item span {
+    font-family: 'IBM Plex Mono', monospace;
+    color: #fff;
+    font-size: 14px;
+}
+
+
+
+/* Responsive shortcuts grid */
+@media (min-width: 768px) {
+    .shortcuts-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Ensure shortcuts help modal is perfectly centered */
+#shortcutsHelpModal .modal-content {
+    margin: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#shortcutsHelpModal .modal-content {
+    margin: auto;
+    margin-top: 100px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+
+

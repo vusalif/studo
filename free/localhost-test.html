@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studo - Localhost Keyboard Shortcuts Test</title>
+    <style>
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #0f0f0f;
+            color: white;
+            padding: 40px;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid #333;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #222;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        .shortcut-test {
+            background: #333;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            border: 1px solid #555;
+        }
+        .shortcut-key {
+            background: #555;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 0 5px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .success { background: #4CAF50; color: white; }
+        .info { background: #2196F3; color: white; }
+        .warning { background: #FF9800; color: white; }
+        .error { background: #f44336; color: white; }
+        .console-output {
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        .console-output::-webkit-scrollbar {
+            width: 8px;
+        }
+        .console-output::-webkit-scrollbar-track {
+            background: #333;
+        }
+        .console-output::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 4px;
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #45a049;
+        }
+        .test-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .timer-display {
+            font-size: 48px;
+            text-align: center;
+            margin: 30px 0;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .control-btn {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        .control-btn:hover {
+            background: #777;
+            transform: translateY(-2px);
+        }
+        .control-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .control-btn.running {
+            background: #4CAF50;
+        }
+        .control-btn.paused {
+            background: #FF9800;
+        }
+        .control-btn.stopped {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Studo - Localhost Keyboard Shortcuts Test</h1>
+        
+        <div class="test-section">
+            <h2>🌐 Environment Check</h2>
+            <div id="envInfo"></div>
+            <button class="test-button" onclick="checkEnvironment()">Check Environment</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>⏱️ Timer Test</h2>
+            <div class="timer-display" id="testTimer">25:00</div>
+            <div class="controls">
+                <button class="control-btn stopped" id="testPlayBtn">▶️ Start</button>
+                <button class="control-btn" id="testPauseBtn" disabled>⏸️ Pause</button>
+                <button class="control-btn" id="testStopBtn" disabled>⏹️ Stop</button>
+            </div>
+            <div id="timerStatus"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>⌨️ Keyboard Shortcuts Test</h2>
+            <p>Try these keyboard shortcuts:</p>
+            
+            <div class="shortcut-test">
+                <strong>Timer Controls:</strong><br>
+                <span class="shortcut-key">Enter</span> or <span class="shortcut-key">S</span> - Start timer<br>
+                <span class="shortcut-key">P</span> - Pause/Resume timer<br>
+                <span class="shortcut-key">F</span> - Stop timer
+            </div>
+            
+            <div class="shortcut-test">
+                <strong>Navigation:</strong><br>
+                <span class="shortcut-key">Q</span> - Open settings<br>
+                <span class="shortcut-key">M</span> - Toggle log<br>
+                <span class="shortcut-key">Escape</span> - Close modals<br>
+                <span class="shortcut-key">H</span> - Show this help
+            </div>
+            
+            <div id="shortcutStatus"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Console Output</h2>
+            <div class="console-output" id="consoleOutput">
+                <div>Console output will appear here...</div>
+                <div>Press shortcuts to see them logged</div>
+            </div>
+            <button class="test-button" onclick="clearConsole()">Clear Console</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>🚀 Go to Main App</h2>
+            <a href="index.html" class="test-button" style="text-decoration: none; display: inline-block;">Open Studo App</a>
+        </div>
+    </div>
+
+    <script>
+        // Timer state for testing
+        let testTimerState = {
+            isRunning: false,
+            isPaused: false,
+            timeLeft: 25 * 60,
+            interval: null
+        };
+        
+        // Environment check
+        function checkEnvironment() {
+            const envInfo = document.getElementById('envInfo');
+            const isLocalhost = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1' || 
+                               window.location.hostname === '0.0.0.0';
+            
+            envInfo.innerHTML = `
+                <div class="status ${isLocalhost ? 'warning' : 'success'}">
+                    <strong>Hostname:</strong> ${window.location.hostname}<br>
+                    <strong>Protocol:</strong> ${window.location.protocol}<br>
+                    <strong>Port:</strong> ${window.location.port || 'default'}<br>
+                    <strong>Environment:</strong> ${isLocalhost ? 'localhost' : 'production'}<br>
+                    <strong>User Agent:</strong> ${navigator.userAgent.substring(0, 100)}...
+                </div>
+            `;
+            
+            logToConsole('Environment check completed');
+        }
+        
+        // Timer functions
+        function startTestTimer() {
+            if (!testTimerState.isRunning && !testTimerState.isPaused) {
+                testTimerState.isRunning = true;
+                testTimerState.isPaused = false;
+                updateTimerButtons();
+                updateTimerStatus('Timer started');
+                
+                testTimerState.interval = setInterval(() => {
+                    if (testTimerState.timeLeft > 0) {
+                        testTimerState.timeLeft--;
+                        updateTimerDisplay();
+                    } else {
+                        stopTestTimer();
+                    }
+                }, 1000);
+                
+                logToConsole('Test timer started');
+            }
+        }
+        
+        function pauseTestTimer() {
+            if (testTimerState.isRunning) {
+                testTimerState.isRunning = false;
+                testTimerState.isPaused = true;
+                clearInterval(testTimerState.interval);
+                updateTimerButtons();
+                updateTimerStatus('Timer paused');
+                logToConsole('Test timer paused');
+            } else if (testTimerState.isPaused) {
+                startTestTimer();
+            }
+        }
+        
+        function stopTestTimer() {
+            testTimerState.isRunning = false;
+            testTimerState.isPaused = false;
+            clearInterval(testTimerState.interval);
+            testTimerState.timeLeft = 25 * 60;
+            updateTimerDisplay();
+            updateTimerButtons();
+            updateTimerStatus('Timer stopped');
+            logToConsole('Test timer stopped');
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(testTimerState.timeLeft / 60);
+            const seconds = testTimerState.timeLeft % 60;
+            document.getElementById('testTimer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function updateTimerButtons() {
+            const playBtn = document.getElementById('testPlayBtn');
+            const pauseBtn = document.getElementById('testPauseBtn');
+            const stopBtn = document.getElementById('testStopBtn');
+            
+            // Remove all classes
+            playBtn.className = 'control-btn';
+            pauseBtn.className = 'control-btn';
+            stopBtn.className = 'control-btn';
+            
+            if (testTimerState.isRunning) {
+                playBtn.className = 'control-btn running';
+                playBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+            } else if (testTimerState.isPaused) {
+                playBtn.className = 'control-btn paused';
+                playBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+            } else {
+                playBtn.className = 'control-btn stopped';
+                playBtn.disabled = false;
+                pauseBtn.disabled = true;
+                stopBtn.disabled = true;
+            }
+        }
+        
+        function updateTimerStatus(message) {
+            document.getElementById('timerStatus').innerHTML = 
+                `<div class="status info">${message}</div>`;
+        }
+        
+        // Console logging
+        function logToConsole(message) {
+            const consoleOutput = document.getElementById('consoleOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            consoleOutput.appendChild(logEntry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        function clearConsole() {
+            document.getElementById('consoleOutput').innerHTML = 
+                '<div>Console cleared...</div>';
+        }
+        
+        // Keyboard shortcuts for testing
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            
+            switch (key) {
+                case 'enter':
+                case 's':
+                    if (!testTimerState.isRunning && !testTimerState.isPaused) {
+                        event.preventDefault();
+                        startTestTimer();
+                        logToConsole('⌨️ Shortcut: Start timer (Enter/S)');
+                        updateShortcutStatus('Start timer shortcut used', 'success');
+                    }
+                    break;
+                    
+                case 'p':
+                    if (testTimerState.isRunning || testTimerState.isPaused) {
+                        event.preventDefault();
+                        pauseTestTimer();
+                        logToConsole('⌨️ Shortcut: Pause/Resume timer (P)');
+                        updateShortcutStatus('Pause/Resume shortcut used', 'success');
+                    }
+                    break;
+                    
+                case 'f':
+                    if (testTimerState.isRunning || testTimerState.isPaused) {
+                        event.preventDefault();
+                        stopTestTimer();
+                        logToConsole('⌨️ Shortcut: Stop timer (F)');
+                        updateShortcutStatus('Stop timer shortcut used', 'success');
+                    }
+                    break;
+                    
+                case 'q':
+                    event.preventDefault();
+                    logToConsole('⌨️ Shortcut: Open settings (Q)');
+                    updateShortcutStatus('Settings shortcut used', 'info');
+                    break;
+                    
+                case 'm':
+                    event.preventDefault();
+                    logToConsole('⌨️ Shortcut: Toggle log (M)');
+                    updateShortcutStatus('Log toggle shortcut used', 'info');
+                    break;
+                    
+                case 'escape':
+                    event.preventDefault();
+                    logToConsole('⌨️ Shortcut: Close modals (Escape)');
+                    updateShortcutStatus('Escape shortcut used', 'warning');
+                    break;
+                    
+                case 'h':
+                    event.preventDefault();
+                    logToConsole('⌨️ Shortcut: Show help (H)');
+                    updateShortcutStatus('Help shortcut used', 'info');
+                    break;
+            }
+        });
+        
+        function updateShortcutStatus(message, type) {
+            const statusDiv = document.getElementById('shortcutStatus');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            
+            // Clear status after 3 seconds
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 3000);
+        }
+        
+        // Button event listeners
+        document.getElementById('testPlayBtn').addEventListener('click', startTestTimer);
+        document.getElementById('testPauseBtn').addEventListener('click', pauseTestTimer);
+        document.getElementById('testStopBtn').addEventListener('click', stopTestTimer);
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            checkEnvironment();
+            updateTimerButtons();
+            logToConsole('Test page loaded - keyboard shortcuts enabled');
+            logToConsole('Try pressing: Enter, S, P, F, Q, M, Escape, H');
+        });
+    </script>
+</body>
+</html>

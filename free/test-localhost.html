@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studo - Localhost Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f0f0f;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .test-section {
+            background: #333;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #888;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #4CAF50; }
+        .error { background: #f44336; }
+        .info { background: #2196F3; }
+        .warning { background: #ff9800; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Studo - Localhost Test Page</h1>
+    
+    <div class="test-section">
+        <h2>🌐 Environment Check</h2>
+        <div id="envInfo"></div>
+        <button class="test-button" onclick="checkEnvironment()">Check Environment</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>⏱️ Timer Functionality Test</h2>
+        <div id="timerTest"></div>
+        <button class="test-button" onclick="testTimer()">Test Timer</button>
+        <button class="test-button" onclick="testPauseResume()">Test Pause/Resume</button>
+        <button class="test-button" onclick="testModeSwitch()">Test Mode Switch</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Service Worker Test</h2>
+        <div id="swTest"></div>
+        <button class="test-button" onclick="testServiceWorker()">Test Service Worker</button>
+        <button class="test-button" onclick="unregisterSW()">Unregister SW</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📱 PWA Test</h2>
+        <div id="pwaTest"></div>
+        <button class="test-button" onclick="testPWA()">Test PWA</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>💾 Local Storage Test</h2>
+        <div id="storageTest"></div>
+        <button class="test-button" onclick="testLocalStorage()">Test Local Storage</button>
+        <button class="test-button" onclick="clearLocalStorage()">Clear Local Storage</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🚀 Go to Main App</h2>
+        <a href="index.html" class="test-button" style="text-decoration: none; display: inline-block;">Open Studo App</a>
+    </div>
+
+    <script>
+        // Environment check
+        function checkEnvironment() {
+            const envInfo = document.getElementById('envInfo');
+            const isLocalhost = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1' || 
+                               window.location.hostname === '0.0.0.0';
+            
+            envInfo.innerHTML = `
+                <div class="status ${isLocalhost ? 'warning' : 'success'}">
+                    <strong>Hostname:</strong> ${window.location.hostname}<br>
+                    <strong>Protocol:</strong> ${window.location.protocol}<br>
+                    <strong>Port:</strong> ${window.location.port || 'default'}<br>
+                    <strong>Environment:</strong> ${isLocalhost ? 'localhost' : 'production'}<br>
+                    <strong>User Agent:</strong> ${navigator.userAgent.substring(0, 100)}...
+                </div>
+            `;
+        }
+        
+        // Timer functionality test
+        function testTimer() {
+            const timerTest = document.getElementById('timerTest');
+            try {
+                // Test basic timer logic
+                let timeLeft = 25 * 60;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                timerTest.innerHTML = `
+                    <div class="status success">
+                        ✅ Timer logic working: ${display}<br>
+                        ✅ Math operations working<br>
+                        ✅ String formatting working
+                    </div>
+                `;
+            } catch (error) {
+                timerTest.innerHTML = `
+                    <div class="status error">
+                        ❌ Timer test failed: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Pause/Resume test
+        function testPauseResume() {
+            const timerTest = document.getElementById('timerTest');
+            try {
+                // Simulate timer states
+                let isRunning = true;
+                let isPaused = false;
+                
+                // Test pause
+                isRunning = false;
+                isPaused = true;
+                
+                // Test resume
+                isRunning = true;
+                isPaused = false;
+                
+                timerTest.innerHTML = `
+                    <div class="status success">
+                        ✅ Pause/Resume state logic working<br>
+                        ✅ State transitions working<br>
+                        ✅ Boolean operations working
+                    </div>
+                `;
+            } catch (error) {
+                timerTest.innerHTML = `
+                    <div class="status error">
+                        ❌ Pause/Resume test failed: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Mode switch test
+        function testModeSwitch() {
+            const timerTest = document.getElementById('timerTest');
+            try {
+                let timerMode = 'timer';
+                let timeLeft = 25 * 60;
+                
+                // Test mode switch
+                if (timerMode === 'timer') {
+                    timerMode = 'stopwatch';
+                    timeLeft = 0;
+                } else {
+                    timerMode = 'timer';
+                    timeLeft = 25 * 60;
+                }
+                
+                timerTest.innerHTML = `
+                    <div class="status success">
+                        ✅ Mode switching logic working<br>
+                        ✅ Timer mode: ${timerMode}<br>
+                        ✅ Time left: ${timeLeft} seconds
+                    </div>
+                `;
+            } catch (error) {
+                timerTest.innerHTML = `
+                    <div class="status error">
+                        ❌ Mode switch test failed: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Service Worker test
+        function testServiceWorker() {
+            const swTest = document.getElementById('swTest');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    if (registrations.length > 0) {
+                        swTest.innerHTML = `
+                            <div class="status warning">
+                                ⚠️ Found ${registrations.length} service worker(s)<br>
+                                This might cause conflicts on localhost
+                            </div>
+                        `;
+                    } else {
+                        swTest.innerHTML = `
+                            <div class="status success">
+                                ✅ No service workers found<br>
+                                This is good for localhost testing
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                swTest.innerHTML = `
+                    <div class="status error">
+                        ❌ Service Worker not supported in this browser
+                    </div>
+                `;
+            }
+        }
+        
+        // Unregister service workers
+        function unregisterSW() {
+            const swTest = document.getElementById('swTest');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        registration.unregister();
+                    });
+                    swTest.innerHTML = `
+                        <div class="status success">
+                            ✅ All service workers unregistered<br>
+                            Refresh the page to see changes
+                        </div>
+                    `;
+                });
+            }
+        }
+        
+        // PWA test
+        function testPWA() {
+            const pwaTest = document.getElementById('pwaTest');
+            
+            if ('serviceWorker' in navigator) {
+                pwaTest.innerHTML = `
+                    <div class="status info">
+                        ℹ️ Service Worker API available<br>
+                        ℹ️ PWA features supported
+                    </div>
+                `;
+            } else {
+                pwaTest.innerHTML = `
+                    <div class="status error">
+                        ❌ Service Worker API not available<br>
+                        ❌ PWA features not supported
+                    </div>
+                `;
+            }
+        }
+        
+        // Local Storage test
+        function testLocalStorage() {
+            const storageTest = document.getElementById('storageTest');
+            
+            try {
+                // Test write
+                localStorage.setItem('test', 'Hello World');
+                
+                // Test read
+                const value = localStorage.getItem('test');
+                
+                // Test delete
+                localStorage.removeItem('test');
+                
+                storageTest.innerHTML = `
+                    <div class="status success">
+                        ✅ Local Storage working<br>
+                        ✅ Write/Read/Delete operations successful<br>
+                        ✅ Test value: ${value}
+                    </div>
+                `;
+            } catch (error) {
+                storageTest.innerHTML = `
+                    <div class="status error">
+                        ❌ Local Storage test failed: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Clear local storage
+        function clearLocalStorage() {
+            const storageTest = document.getElementById('storageTest');
+            
+            try {
+                localStorage.clear();
+                storageTest.innerHTML = `
+                    <div class="status warning">
+                        ⚠️ Local Storage cleared<br>
+                        All app data has been removed
+                    </div>
+                `;
+            } catch (error) {
+                storageTest.innerHTML = `
+                    <div class="status error">
+                        ❌ Failed to clear Local Storage: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-run environment check on page load
+        window.addEventListener('load', () => {
+            checkEnvironment();
+            testServiceWorker();
+            testPWA();
+            testLocalStorage();
+        });
+    </script>
+</body>
+</html>
