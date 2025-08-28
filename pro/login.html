@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studo - Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Supabase JavaScript Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <style>
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .login-title {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #fff;
+            color: #0f0f0f;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <form class="login-form" id="loginForm">
+            <h1 class="login-title">Studo</h1>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" class="login-btn">Login</button>
+            
+            <div class="error-message" id="errorMessage">
+                Invalid email or password. Please try again.
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Wait for Supabase to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if account was deleted
+            const accountDeleted = localStorage.getItem('accountDeleted') === 'true';
+            const deletedUserId = localStorage.getItem('deletedUserId');
+            
+            if (accountDeleted && deletedUserId) {
+                console.log('🚫 Attempted login with deleted account:', deletedUserId);
+                
+                // Clear the deletion markers
+                localStorage.removeItem('accountDeleted');
+                localStorage.removeItem('deletedUserId');
+                localStorage.removeItem('deletedAt');
+                
+                // Show error message
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = 'This account has been deleted and cannot be accessed.';
+                errorMessage.classList.add('show');
+                
+                // Disable the form
+                document.getElementById('loginForm').style.opacity = '0.5';
+                document.getElementById('loginForm').style.pointerEvents = 'none';
+                
+                // Show additional message
+                const deletedMessage = document.createElement('div');
+                deletedMessage.style.cssText = 'text-align: center; color: #ff6b6b; margin-top: 20px; font-size: 14px;';
+                deletedMessage.innerHTML = `
+                    <div style="margin-bottom: 10px;">🚫 Account Deleted</div>
+                    <div style="color: #888; font-size: 12px;">
+                        This account has been permanently deleted from the system.<br>
+                        You cannot log in with these credentials anymore.
+                    </div>
+                `;
+                document.querySelector('.login-form').appendChild(deletedMessage);
+                
+                return;
+            }
+            
+            // Check if already logged in
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                window.location.href = 'index.html';
+            }
+            
+            // Focus on email field when page loads
+            document.getElementById('email').focus();
+            
+            // Handle login form submission
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const errorMessage = document.getElementById('errorMessage');
+                const loginBtn = document.querySelector('.login-btn');
+                
+                // Show loading state
+                loginBtn.textContent = 'Logging in...';
+                loginBtn.disabled = true;
+                errorMessage.classList.remove('show');
+                
+                try {
+                    // Attempt to sign in with Supabase
+                    const { data, error } = await SupabaseService.auth.signIn(email, password);
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    if (data.user) {
+                        // Successful login - session should now be cached
+                        console.log('Login successful, user:', data.user.email);
+                        
+                        // Store authentication data in localStorage
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userEmail', email);
+                        localStorage.setItem('userId', data.user.id);
+                        
+                        // Verify session is properly initialized
+                        if (SupabaseService.auth.isAuthenticated()) {
+                            console.log('Session verified, redirecting to app');
+                            window.location.href = 'index.html';
+                        } else {
+                            console.log('Session not properly initialized, but continuing with localStorage');
+                            window.location.href = 'index.html';
+                        }
+                    } else {
+                        throw new Error('Login failed');
+                    }
+                    
+                } catch (error) {
+                    console.error('Login error:', error);
+                    
+                    // Show error message
+                    errorMessage.textContent = error.message || 'Invalid email or password. Please try again.';
+                    errorMessage.classList.add('show');
+                    
+                    // Clear password field
+                    document.getElementById('password').value = '';
+                    
+                    // Focus on password field
+                    document.getElementById('password').focus();
+                } finally {
+                    // Reset button state
+                    loginBtn.textContent = 'Login';
+                    loginBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

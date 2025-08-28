@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Recall - Studo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="active-recall-page">
+    <a href="index.html" class="back-btn">← Back to Studo</a>
+    
+    <!-- Beta Notification -->
+    <div id="beta-notification" class="beta-notification">
+        <div class="beta-notification-content">
+            <div class="beta-notification-icon">🧠</div>
+            <div class="beta-notification-text">
+                <strong>Active Recall is in BETA!</strong>
+                <p>This feature is experimental. Your feedback helps us improve!</p>
+            </div>
+            <button class="beta-notification-close" onclick="closeBetaNotification()">×</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="active-recall-container">
+
+            <!-- Navigation Tabs -->
+            <div class="flashcard-tabs">
+                <button class="tab-btn active" data-tab="decks">My Decks</button>
+                <button class="tab-btn" data-tab="review">Review</button>
+                <button class="tab-btn" data-tab="stats">Statistics</button>
+                <button class="tab-btn" data-tab="plan">Plan</button>
+            </div>
+            
+            <!-- Decks Tab -->
+            <div class="tab-content active" id="decks-tab">
+                <div class="deck-controls">
+                    <button class="btn btn-primary" id="create-deck-btn">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Create New Deck
+                    </button>
+                </div>
+                
+                <div class="decks-grid" id="decks-grid">
+                    <!-- Loading state -->
+                    <div class="loading-state" id="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading your decks...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Review Tab -->
+            <div class="tab-content" id="review-tab">
+                <div class="review-controls">
+                    <select id="review-deck-select" class="form-select">
+                        <option value="">Select a deck to review</option>
+                    </select>
+                    <button class="btn btn-primary" id="start-review-btn" disabled>Start Review</button>
+                    <button class="btn btn-secondary" onclick="flashcardSystem.resetAllCardsForReview()" title="Reset all cards to be available for review (for testing)">Reset All Cards</button>
+                </div>
+                
+                <div class="review-session" id="review-session" style="display: none;">
+                    <div class="progress-info">
+                        <span id="progress-text">0 / 0</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flashcard" id="current-card">
+                        <div class="card-front">
+                            <div class="card-content" id="card-front-content"></div>
+                        </div>
+                        <div class="card-back" id="card-back-content" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="card-controls">
+                        <button class="btn btn-secondary" id="flip-card-btn">Show Answer</button>
+                        <div class="difficulty-buttons" id="difficulty-buttons" style="display: none;">
+                            <button class="btn btn-difficulty" data-difficulty="again">Again</button>
+                            <button class="btn btn-difficulty" data-difficulty="hard">Hard</button>
+                            <button class="btn btn-difficulty" data-difficulty="good">Good</button>
+                            <button class="btn btn-difficulty" data-difficulty="easy">Easy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics Tab -->
+            <div class="tab-content" id="stats-tab">
+                <!-- Quick Stats Overview -->
+                <div class="stats-overview">
+                    <div class="stat-card">
+                        <h3>Total Cards</h3>
+                        <div class="stat-number" id="total-cards">0</div>
+                        <div class="stat-trend" id="total-cards-trend"></div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Cards Due</h3>
+                        <div class="stat-number" id="cards-due">0</div>
+                        <div class="stat-trend" id="cards-due-trend"></div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Study Streak</h3>
+                        <div class="stat-number" id="current-streak">0</div>
+                        <div class="stat-description">days</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Success Rate</h3>
+                        <div class="stat-number" id="success-rate">0%</div>
+                        <div class="stat-description" id="success-rate-desc">No reviews yet</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Reviews Today</h3>
+                        <div class="stat-number" id="reviews-today">0</div>
+                        <div class="stat-description">cards reviewed</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Cards Mastered</h3>
+                        <div class="stat-number" id="mastered-cards-stat">0</div>
+                        <div class="stat-description">well learned</div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="stats-charts">
+                    <div class="chart-row">
+                        <div class="chart-container">
+                            <h3>Performance Over Time</h3>
+                            <canvas id="performance-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Review Distribution</h3>
+                            <canvas id="difficulty-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-row">
+                        <div class="chart-container">
+                            <h3>Daily Review Activity</h3>
+                            <canvas id="activity-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Deck Performance</h3>
+                            <canvas id="deck-performance-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Statistics -->
+                <div class="detailed-stats">
+                    <div class="stats-section">
+                        <h3>Learning Progress</h3>
+                        <div class="progress-stats">
+                            <div class="progress-item">
+                                <span class="progress-label">Cards Mastered</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="mastered-progress"></div>
+                                </div>
+                                <span class="progress-value" id="mastered-count">0 / 0</span>
+                            </div>
+                            <div class="progress-item">
+                                <span class="progress-label">Learning Velocity</span>
+                                <div class="velocity-indicator" id="velocity-indicator">
+                                    <span id="velocity-value">0</span> cards/day
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-section">
+                        <h3>Review Statistics</h3>
+                        <div class="review-stats-grid">
+                            <div class="review-stat">
+                                <div class="review-stat-number" id="total-reviews">0</div>
+                                <div class="review-stat-label">Total Reviews</div>
+                            </div>
+                            <div class="review-stat">
+                                <div class="review-stat-number" id="avg-daily-reviews">0</div>
+                                <div class="review-stat-label">Avg Daily Reviews</div>
+                            </div>
+                            <div class="review-stat">
+                                <div class="review-stat-number" id="longest-streak">0</div>
+                                <div class="review-stat-label">Longest Streak</div>
+                            </div>
+                            <div class="review-stat">
+                                <div class="review-stat-number" id="accuracy-rate">0%</div>
+                                <div class="review-stat-label">Accuracy Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Plan Tab -->
+            <div class="tab-content" id="plan-tab">
+                <div class="plan-container">
+                    <!-- Calendar Section -->
+                    <div class="calendar-section">
+                        <div class="calendar-header">
+                            <div class="calendar-nav-group">
+                                <button class="calendar-nav" id="prev-year" title="Previous Year">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                        <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <button class="calendar-nav" id="prev-month" title="Previous Month">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <h3 class="calendar-title" id="calendar-title">January 2024</h3>
+                            <div class="calendar-nav-group">
+                                <button class="calendar-nav" id="next-month" title="Next Month">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                        <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <button class="calendar-nav" id="next-year" title="Next Year">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                        <path d="M13 17l5-5-5-5M6 17l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid">
+                            <!-- Calendar will be populated here -->
+                        </div>
+                        <div class="calendar-legend">
+                            <div class="legend-item">
+                                <div class="legend-color due-today"></div>
+                                <span>Due Today</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color due-soon"></div>
+                                <span>Due This Week</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color due-later"></div>
+                                <span>Due Later</span>
+                            </div>
+                            <div class="smart-scheduling-info" title="Smart Scheduling: Cards are scheduled based on your performance&#10;&#10;Again: 1-2 days&#10;Hard: 2-9 days&#10;Good: 4-21 days&#10;Easy: 7-30+ days">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Knowledge Overview Section -->
+                    <div class="knowledge-overview">
+                        <h3>Knowledge Overview</h3>
+                        <div class="deck-knowledge-list" id="deck-knowledge-list">
+                            <!-- Deck knowledge will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Date Info -->
+                    <div class="date-info" id="date-info" style="display: none;">
+                        <h4 id="selected-date-title">Selected Date</h4>
+                        <div class="date-cards" id="date-cards">
+                            <!-- Cards due on selected date will be shown here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Deck Modal -->
+    <div class="modal" id="create-deck-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Deck</h3>
+                <button class="modal-close" id="close-deck-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="deck-name">Deck Name</label>
+                    <input type="text" id="deck-name" class="form-input" placeholder="Enter deck name">
+                </div>
+                <div class="form-group">
+                    <label for="deck-description">Description (optional)</label>
+                    <textarea id="deck-description" class="form-input" placeholder="Enter description"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-deck-btn">Cancel</button>
+                <button class="btn btn-primary" id="save-deck-btn">Create Deck</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Card Modal -->
+    <div class="modal" id="add-card-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Card</h3>
+                <button class="modal-close" id="close-card-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="card-front">Front (Question)</label>
+                    <textarea id="card-front" class="form-input" placeholder="Enter the question or prompt"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="card-back">Back (Answer)</label>
+                    <textarea id="card-back" class="form-input" placeholder="Enter the answer or explanation"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="card-tags">Tags (optional)</label>
+                    <input type="text" id="card-tags" class="form-input" placeholder="Enter tags separated by commas">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-card-btn">Cancel</button>
+                <button class="btn btn-primary" id="save-card-btn">Add Card</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Deck Details Modal -->
+    <div class="modal" id="deck-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="deck-details-title">Deck Details</h3>
+                <button class="modal-close" id="close-deck-details-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="deck-info">
+                    <p id="deck-details-description"></p>
+                    <div class="deck-stats">
+                        <span id="deck-card-count">0 cards</span>
+                        <span id="deck-last-reviewed">Never reviewed</span>
+                    </div>
+                </div>
+                <div class="deck-actions">
+                    <button class="btn btn-primary" id="start-deck-review-btn">Start Review</button>
+                    <button class="btn btn-secondary" id="add-card-to-deck-btn">Add Card</button>
+                    <button class="btn btn-danger" id="delete-deck-btn">Delete Deck</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="active-recall.js"></script>
+    <script>
+        function closeBetaNotification() {
+            const notification = document.getElementById('beta-notification');
+            notification.classList.add('hide');
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 300);
+        }
+        
+        // Auto-hide notification after 8 seconds
+        setTimeout(() => {
+            const notification = document.getElementById('beta-notification');
+            if (notification && !notification.classList.contains('hide')) {
+                closeBetaNotification();
+            }
+        }, 8000);
+    </script>
+</body>
+</html>

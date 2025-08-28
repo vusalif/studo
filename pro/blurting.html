@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blurting - Studo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="blurting-page">
+    <a href="index.html" class="back-btn">← Back to Studo</a>
+    
+    <div class="container">
+        <div class="notes-container">
+            <button class="new-note-btn" id="newNoteBtn">+ New Note</button>
+            
+            <div class="notes-list" id="notesList">
+                <!-- Notes will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Preview Modal -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content preview-modal">
+            <div class="modal-header">
+                <h2 id="previewTitle">Note Preview</h2>
+                <button class="close-btn" id="closePreviewModal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="note-preview-content" id="notePreviewContent">
+                    <!-- Note content with rendered LaTeX will be displayed here -->
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closePreview">Close</button>
+                <button class="btn btn-primary" id="editNote">Edit Note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Modal -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">New Note</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="noteTitle">Title:</label>
+                    <input type="text" id="noteTitle" placeholder="Enter note title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="noteContent">Content:</label>
+                    <textarea id="noteContent" placeholder="Write your notes here...&#10;&#10;You can use LaTeX formulas:&#10;$$E = mc^2$$&#10;$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$&#10;&#10;Inline math: $a^2 + b^2 = c^2$"></textarea>
+                </div>
+                
+                <div class="formula-help">
+                    <h4>Formula Examples:</h4>
+                    <div class="formula-examples">
+                        <button class="formula-btn" data-formula="E = mc^2">E = mc²</button>
+                        <button class="formula-btn" data-formula="a^2 + b^2 = c^2">a² + b² = c²</button>
+                        <button class="formula-btn" data-formula="\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}">∫ e⁻ˣ² dx</button>
+                        <button class="formula-btn" data-formula="\frac{-b \pm \sqrt{b^2-4ac}}{2a}">Quadratic Formula</button>
+                        <button class="formula-btn" data-formula="\sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}">Sum Series</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelNote">Cancel</button>
+                <button class="btn btn-primary" id="saveNote">Save Note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content delete-modal">
+            <div class="modal-header">
+                <h2>Delete Note</h2>
+                <button class="close-btn" id="closeDeleteModal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="deleteNoteTitle"></span>"?</p>
+                <p>This action cannot be undone.</p>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelDelete">Cancel</button>
+                <button class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="blurting.js"></script>
+</body>
+</html>

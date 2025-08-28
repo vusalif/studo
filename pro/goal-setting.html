@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goal Setting - Studo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body class="goal-setting-page">
+    <a href="index.html" class="back-btn">← Back to Studo</a>
+    
+    <!-- Beta Notification -->
+    <div id="beta-notification" class="beta-notification">
+        <div class="beta-notification-content">
+            <div class="beta-notification-icon">🚀</div>
+            <div class="beta-notification-text">
+                <strong>Goal Setting is in BETA!</strong>
+                <p>This feature is experimental. Your feedback helps us improve!</p>
+            </div>
+            <button class="beta-notification-close" onclick="closeBetaNotification()">×</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="goal-setting-container">
+            <!-- Navigation Tabs -->
+            <div class="goal-tabs">
+                <button class="tab-btn active" data-tab="goals">My Goals</button>
+                <button class="tab-btn" data-tab="create">Create Goal</button>
+                <button class="tab-btn" data-tab="progress">Progress</button>
+            </div>
+            
+            <!-- Goals Tab -->
+            <div class="tab-content active" id="goals-tab">
+                <div class="goals-header">
+                    <h2>My Study Goals</h2>
+                    <button class="btn btn-primary" id="create-goal-btn">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+                            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Create New Goal
+                    </button>
+                </div>
+                
+                <div class="goals-grid" id="goals-grid">
+                    <!-- Loading state -->
+                    <div class="loading-state" id="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Loading your goals...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Create Goal Tab -->
+            <div class="tab-content" id="create-tab">
+                <div class="create-goal-form">
+                    <h2>Create New Goal</h2>
+                    
+                    <div class="form-group">
+                        <label for="goal-title">Goal Title</label>
+                        <input type="text" id="goal-title" class="form-input" placeholder="e.g., Complete 100 flashcards this week">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="goal-description">Description</label>
+                        <textarea id="goal-description" class="form-input" placeholder="Describe your goal in detail..." rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="goal-type">Goal Type</label>
+                            <select id="goal-type" class="form-input">
+                                <option value="study-time">Study Time</option>
+                                <option value="flashcards">Flashcards</option>
+                                <option value="notes">Notes Created</option>
+                                <option value="sessions">Study Sessions</option>
+                                <option value="streak">Study Streak</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="goal-target">Target Value</label>
+                            <input type="number" id="goal-target" class="form-input" placeholder="100" min="1">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enable-dates" checked>
+                            <span class="checkmark"></span>
+                            Set start and end dates (optional)
+                        </label>
+                    </div>
+                    
+                    <div class="form-row" id="date-fields">
+                        <div class="form-group">
+                            <label for="goal-start-date">Start Date</label>
+                            <input type="date" id="goal-start-date" class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="goal-end-date">End Date</label>
+                            <input type="date" id="goal-end-date" class="form-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="goal-priority">Priority</label>
+                        <select id="goal-priority" class="form-input">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" id="cancel-goal-btn">Cancel</button>
+                        <button class="btn btn-primary" id="save-goal-btn">Create Goal</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Tab -->
+            <div class="tab-content" id="progress-tab">
+                <div class="progress-header">
+                    <h2>Goal Progress</h2>
+                    <div class="progress-filters">
+                        <select id="progress-filter" class="form-select">
+                            <option value="all">All Goals</option>
+                            <option value="active">Active Goals</option>
+                            <option value="completed">Completed Goals</option>
+                            <option value="overdue">Overdue Goals</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="progress-stats">
+                    <div class="stat-card">
+                        <h3>Total Goals</h3>
+                        <div class="stat-number" id="total-goals">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Goals</h3>
+                        <div class="stat-number" id="active-goals">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Completed</h3>
+                        <div class="stat-number" id="completed-goals">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Success Rate</h3>
+                        <div class="stat-number" id="success-rate">0%</div>
+                    </div>
+                </div>
+                
+                <div class="progress-charts">
+                    <div class="chart-container">
+                        <h3>Goal Completion Timeline</h3>
+                        <canvas id="completion-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Goal Modal -->
+    <div class="modal" id="edit-goal-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Goal</h3>
+                <button class="modal-close" id="close-edit-goal-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit-goal-title">Goal Title</label>
+                    <input type="text" id="edit-goal-title" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="edit-goal-description">Description</label>
+                    <textarea id="edit-goal-description" class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-goal-target">Target Value</label>
+                    <input type="number" id="edit-goal-target" class="form-input" min="1">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-goal-start-date">Start Date</label>
+                        <input type="date" id="edit-goal-start-date" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-goal-end-date">End Date</label>
+                        <input type="date" id="edit-goal-end-date" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-goal-priority">Priority</label>
+                    <select id="edit-goal-priority" class="form-input">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-edit-goal-btn">Cancel</button>
+                <button class="btn btn-primary" id="save-edit-goal-btn">Save Changes</button>
+                <button class="btn btn-danger" id="delete-goal-btn">Delete Goal</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="goal-setting.js"></script>
+    <script>
+        function closeBetaNotification() {
+            const notification = document.getElementById('beta-notification');
+            notification.classList.add('hide');
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 300);
+        }
+        
+        // Auto-hide notification after 8 seconds
+        setTimeout(() => {
+            const notification = document.getElementById('beta-notification');
+            if (notification && !notification.classList.contains('hide')) {
+                closeBetaNotification();
+            }
+        }, 8000);
+    </script>
+</body>
+</html>
