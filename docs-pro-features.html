@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Features Deep Dive - Studo Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kirang+Haerang&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: white;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            padding: 50px 20px;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.8;
+            transition: opacity 0.1s ease;
+        }
+
+        .cursor-trail.fade {
+            opacity: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .article-category {
+            font-size: 0.8rem;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
+        }
+
+        .article-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: center;
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #b3b3b3;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        .article-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 40px 0 20px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 30px 0 15px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content p {
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .article-content li {
+            margin-bottom: 10px;
+        }
+
+        .article-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .highlight-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .highlight-box h4 {
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card h4 {
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 30px 15px;
+            }
+
+            .article-title {
+                font-size: 2rem;
+            }
+
+            .back-button {
+                top: 20px;
+                left: 20px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="docs.html" class="back-button">← Back to Docs</a>
+    
+    <div class="container">
+        <div class="article-header">
+            <div class="article-category">Pro Features</div>
+            <h1 class="article-title">Pro Features Deep Dive</h1>
+            <div class="article-meta">
+                <span>Advanced</span>
+                <span>•</span>
+                <span>10 min read</span>
+            </div>
+        </div>
+
+        <div class="article-content">
+            <p>Studo Pro unlocks advanced features designed for serious learners who want to maximize their study effectiveness. This guide covers all the premium features and how to use them effectively.</p>
+
+            <h2>Enhanced Timer Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Pomodoro Timer</h4>
+                    <p>Advanced Pomodoro technique with customizable work periods (15-60 minutes), short breaks (3-15 minutes), and long breaks after 4 sessions.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Session Analytics</h4>
+                    <p>Detailed breakdown of your study patterns, including peak productivity hours, session length trends, and focus quality metrics.</p>
+                </div>
+            </div>
+
+            <h3>Pomodoro Configuration</h3>
+            <ul>
+                <li><strong>Work Period:</strong> 15, 25, 30, 45, or 60 minutes</li>
+                <li><strong>Short Break:</strong> 3, 5, 10, or 15 minutes</li>
+                <li><strong>Long Break:</strong> 15, 20, 30, or 45 minutes</li>
+                <li><strong>Auto-Start:</strong> Automatically begin breaks and work periods</li>
+                <li><strong>Sound Alerts:</strong> Customizable notification sounds</li>
+            </ul>
+
+            <h2>Goal Setting & Progress Tracking</h2>
+            
+            <div class="highlight-box">
+                <h4>Smart Goals</h4>
+                <p>Set and track multiple types of goals: daily study time, weekly targets, subject-specific objectives, and long-term learning milestones.</p>
+            </div>
+
+            <h3>Goal Types</h3>
+            <ul>
+                <li><strong>Time-Based Goals:</strong> Study X hours per day/week</li>
+                <li><strong>Session Goals:</strong> Complete X study sessions</li>
+                <li><strong>Subject Goals:</strong> Focus on specific topics or subjects</li>
+                <li><strong>Streak Goals:</strong> Maintain daily study streaks</li>
+                <li><strong>Custom Goals:</strong> Create your own objectives</li>
+            </ul>
+
+            <h3>Progress Visualization</h3>
+            <ul>
+                <li><strong>Progress Bars:</strong> Visual representation of goal completion</li>
+                <li><strong>Trend Analysis:</strong> Track improvement over time</li>
+                <li><strong>Milestone Celebrations:</strong> Achievements and badges</li>
+                <li><strong>Weekly Reports:</strong> Detailed progress summaries</li>
+            </ul>
+
+            <h2>Blurting Technique</h2>
+            
+            <p>The blurting technique is a powerful learning method where you immediately write down everything you remember about a topic after studying it. Studo Pro includes a dedicated blurting feature.</p>
+
+            <h3>How to Use Blurting</h3>
+            <ol>
+                <li><strong>Study Session:</strong> Complete your normal study session</li>
+                <li><strong>Immediate Recall:</strong> Without looking at your notes, write everything you remember</li>
+                <li><strong>Compare & Review:</strong> Check your blurting against your study materials</li>
+                <li><strong>Identify Gaps:</strong> Note what you missed or got wrong</li>
+                <li><strong>Re-study:</strong> Focus on the areas you struggled with</li>
+            </ol>
+
+            <h3>Blurting Features</h3>
+            <ul>
+                <li><strong>Timed Blurting:</strong> Set time limits for recall sessions</li>
+                <li><strong>Topic Organization:</strong> Categorize blurting by subject</li>
+                <li><strong>Progress Tracking:</strong> See improvement in recall accuracy</li>
+                <li><strong>Export Options:</strong> Download your blurting notes</li>
+            </ul>
+
+            <h2>Active Recall Flashcards</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Smart Spaced Repetition</h4>
+                    <p>Algorithm-based scheduling that shows cards at optimal intervals for long-term retention.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Multiple Card Types</h4>
+                    <p>Text, image, audio, and cloze deletion cards for different learning styles.</p>
+                </div>
+            </div>
+
+            <h3>Creating Effective Flashcards</h3>
+            <ul>
+                <li><strong>Question Format:</strong> Use clear, specific questions</li>
+                <li><strong>Answer Clarity:</strong> Provide concise, accurate answers</li>
+                <li><strong>Visual Elements:</strong> Add images and diagrams when helpful</li>
+                <li><strong>Context:</strong> Include relevant context and examples</li>
+            </ul>
+
+            <h3>Spaced Repetition Algorithm</h3>
+            <ul>
+                <li><strong>Easy Cards:</strong> Shown less frequently (4+ days)</li>
+                <li><strong>Good Cards:</strong> Standard interval (1-3 days)</li>
+                <li><strong>Hard Cards:</strong> Shown more frequently (same day)</li>
+                <li><strong>Again Cards:</strong> Reset to beginning of sequence</li>
+            </ul>
+
+            <h2>Advanced Analytics</h2>
+            
+            <h3>Study Pattern Analysis</h3>
+            <ul>
+                <li><strong>Productivity Heatmaps:</strong> See when you're most focused</li>
+                <li><strong>Subject Distribution:</strong> Track time spent on different topics</li>
+                <li><strong>Session Quality:</strong> Analyze focus and engagement levels</li>
+                <li><strong>Trend Analysis:</strong> Long-term improvement tracking</li>
+            </ul>
+
+            <h3>Flashcard Analytics</h3>
+            <ul>
+                <li><strong>Retention Rates:</strong> How well you remember each card</li>
+                <li><strong>Review Efficiency:</strong> Time spent vs. cards mastered</li>
+                <li><strong>Difficulty Analysis:</strong> Which topics are most challenging</li>
+                <li><strong>Progress Tracking:</strong> Improvement over time</li>
+            </ul>
+
+            <h2>Cloud Backup & Synchronization</h2>
+            
+            <div class="highlight-box">
+                <h4>Multi-Device Access</h4>
+                <p>Access your study data from any device. Your progress, goals, and flashcards sync automatically across all your devices.</p>
+            </div>
+
+            <h3>Backup Features</h3>
+            <ul>
+                <li><strong>Automatic Sync:</strong> Real-time synchronization across devices</li>
+                <li><strong>Manual Backup:</strong> Create backup files on demand</li>
+                <li><strong>Version History:</strong> Restore previous versions of your data</li>
+                <li><strong>Export Options:</strong> Download data in multiple formats</li>
+            </ul>
+
+            <h3>Data Security</h3>
+            <ul>
+                <li><strong>End-to-End Encryption:</strong> All data encrypted in transit and at rest</li>
+                <li><strong>Secure Servers:</strong> Data stored on encrypted, secure servers</li>
+                <li><strong>Privacy Protection:</strong> Your data is never shared or sold</li>
+                <li><strong>GDPR Compliant:</strong> Full compliance with data protection laws</li>
+            </ul>
+
+            <h2>Account Management</h2>
+            
+            <h3>Profile Settings</h3>
+            <ul>
+                <li><strong>Personal Information:</strong> Update your profile details</li>
+                <li><strong>Notification Preferences:</strong> Customize alerts and reminders</li>
+                <li><strong>Privacy Settings:</strong> Control data sharing and visibility</li>
+                <li><strong>Theme Customization:</strong> Personalize your interface</li>
+            </ul>
+
+            <h3>Subscription Management</h3>
+            <ul>
+                <li><strong>Billing History:</strong> View past payments and invoices</li>
+                <li><strong>Plan Changes:</strong> Upgrade or modify your subscription</li>
+                <li><strong>Cancellation:</strong> Cancel anytime with data retention options</li>
+                <li><strong>Refund Policy:</strong> 30-day money-back guarantee</li>
+            </ul>
+
+            <h2>Best Practices for Pro Features</h2>
+            
+            <div class="highlight-box">
+                <h4>Pro Tips</h4>
+                <ul>
+                    <li>Start with basic features and gradually explore advanced options</li>
+                    <li>Use goal setting to maintain motivation and track progress</li>
+                    <li>Combine blurting with active recall for maximum retention</li>
+                    <li>Regularly review analytics to optimize your study habits</li>
+                    <li>Take advantage of cloud sync to study anywhere</li>
+                </ul>
+            </div>
+
+            <h3>Workflow Optimization</h3>
+            <ul>
+                <li><strong>Morning Planning:</strong> Set daily goals and review schedule</li>
+                <li><strong>Study Sessions:</strong> Use Pomodoro for focused work</li>
+                <li><strong>Active Recall:</strong> Review flashcards during breaks</li>
+                <li><strong>Evening Review:</strong> Use blurting to reinforce learning</li>
+                <li><strong>Weekly Analysis:</strong> Review analytics and adjust strategies</li>
+            </ul>
+
+            <h2>Getting Started with Pro</h2>
+            
+            <p>To make the most of Studo Pro:</p>
+            <ol>
+                <li><strong>Set Up Goals:</strong> Create your first learning objectives</li>
+                <li><strong>Configure Pomodoro:</strong> Customize timer settings for your needs</li>
+                <li><strong>Create Flashcards:</strong> Start with your most important topics</li>
+                <li><strong>Enable Cloud Sync:</strong> Set up multi-device access</li>
+                <li><strong>Explore Analytics:</strong> Get familiar with your data dashboard</li>
+            </ol>
+
+            <div class="highlight-box">
+                <h4>Support</h4>
+                <p>Need help with Pro features? Check our troubleshooting guide or contact support for personalized assistance.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CursorTrail {
+            constructor() {
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.init();
+            }
+
+            init() {
+                document.addEventListener('mousemove', (e) => {
+                    this.createTrailPoint(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    this.clearTrail();
+                });
+            }
+
+            createTrailPoint(x, y) {
+                const trailPoint = document.createElement('div');
+                trailPoint.className = 'cursor-trail';
+                trailPoint.style.left = x + 'px';
+                trailPoint.style.top = y + 'px';
+                
+                document.body.appendChild(trailPoint);
+                this.trail.push(trailPoint);
+
+                if (this.trail.length > this.maxTrailLength) {
+                    const oldPoint = this.trail.shift();
+                    if (oldPoint && oldPoint.parentNode) {
+                        oldPoint.parentNode.removeChild(oldPoint);
+                    }
+                }
+
+                setTimeout(() => {
+                    if (trailPoint.parentNode) {
+                        trailPoint.classList.add('fade');
+                        setTimeout(() => {
+                            if (trailPoint.parentNode) {
+                                trailPoint.parentNode.removeChild(trailPoint);
+                            }
+                        }, 100);
+                    }
+                }, 200);
+            }
+
+            clearTrail() {
+                this.trail.forEach(point => {
+                    if (point.parentNode) {
+                        point.parentNode.removeChild(point);
+                    }
+                });
+                this.trail = [];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new CursorTrail();
+        });
+    </script>
+</body>
+</html>

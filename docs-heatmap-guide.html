@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding the Heatmap - Studo Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kirang+Haerang&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: white;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            padding: 50px 20px;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.8;
+            transition: opacity 0.1s ease;
+        }
+
+        .cursor-trail.fade {
+            opacity: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .article-category {
+            font-size: 0.8rem;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
+        }
+
+        .article-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: center;
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #b3b3b3;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        .article-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 40px 0 20px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 30px 0 15px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content p {
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .article-content li {
+            margin-bottom: 10px;
+        }
+
+        .article-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .highlight-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .highlight-box h4 {
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .color-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .color-square {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 30px 15px;
+            }
+
+            .article-title {
+                font-size: 2rem;
+            }
+
+            .back-button {
+                top: 20px;
+                left: 20px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .color-legend {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="docs.html" class="back-button">← Back to Docs</a>
+    
+    <div class="container">
+        <div class="article-header">
+            <div class="article-category">Analytics</div>
+            <h1 class="article-title">Understanding the Heatmap</h1>
+            <div class="article-meta">
+                <span>Analytics</span>
+                <span>•</span>
+                <span>4 min read</span>
+            </div>
+        </div>
+
+        <div class="article-content">
+            <p>Studo's heatmap provides a visual representation of your study activity over the past year, similar to GitHub's contribution graph. This powerful visualization helps you understand your study patterns and build consistent habits.</p>
+
+            <h2>How the Heatmap Works</h2>
+            <p>The heatmap displays 365 days of your study history in a grid format:</p>
+            <ul>
+                <li><strong>Rows:</strong> Days of the week (Sunday through Saturday)</li>
+                <li><strong>Columns:</strong> Weeks of the year</li>
+                <li><strong>Colors:</strong> Intensity of study activity for each day</li>
+            </ul>
+
+            <h2>Color Coding</h2>
+            <p>Each day is represented by a colored square that indicates how much you studied:</p>
+
+            <div class="color-legend">
+                <div class="color-item">
+                    <div class="color-square" style="background-color: #161b22;"></div>
+                    <span>No study time</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-square" style="background-color: #6A6B6A;"></div>
+                    <span>0-5 minutes</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-square" style="background-color: #818180;"></div>
+                    <span>5-10 minutes</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-square" style="background-color: #9A9B9A;"></div>
+                    <span>10-15 minutes</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-square" style="background-color: #B3B4B3;"></div>
+                    <span>15-20 minutes</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-square" style="background-color: #CCCDCC;"></div>
+                    <span>20-30 minutes</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-square" style="background-color: #E5E6E5;"></div>
+                    <span>30-40 minutes</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-square" style="background-color: #FFFFFF;"></div>
+                    <span>40+ minutes</span>
+                </div>
+            </div>
+
+            <h2>Reading Your Heatmap</h2>
+            
+            <h3>Pattern Recognition</h3>
+            <p>Look for these patterns in your heatmap:</p>
+            <ul>
+                <li><strong>Consistency:</strong> Regular colored squares indicate good study habits</li>
+                <li><strong>Streaks:</strong> Consecutive days with activity show momentum</li>
+                <li><strong>Gaps:</strong> Dark periods may indicate breaks or challenges</li>
+                <li><strong>Intensity:</strong> Lighter colors show lighter study days, darker colors show intensive sessions</li>
+            </ul>
+
+            <h3>Weekly Patterns</h3>
+            <p>Each row represents a day of the week. Look for:</p>
+            <ul>
+                <li><strong>Weekday vs Weekend:</strong> Do you study more on certain days?</li>
+                <li><strong>Consistent Days:</strong> Which days of the week are most active?</li>
+                <li><strong>Rest Days:</strong> Are you taking appropriate breaks?</li>
+            </ul>
+
+            <h2>Using Heatmap Data</h2>
+            
+            <div class="highlight-box">
+                <h4>Goal Setting</h4>
+                <p>Use your heatmap to set realistic study goals. If you see many dark squares, aim for more consistent light activity rather than trying to achieve white squares every day.</p>
+            </div>
+
+            <h3>Progress Tracking</h3>
+            <ul>
+                <li><strong>Monthly Reviews:</strong> Check your heatmap monthly to see improvement</li>
+                <li><strong>Streak Building:</strong> Aim for longer streaks of consecutive study days</li>
+                <li><strong>Intensity Balance:</strong> Mix light study days with intensive sessions</li>
+            </ul>
+
+            <h3>Habit Formation</h3>
+            <ul>
+                <li><strong>Start Small:</strong> Even 5-10 minutes daily creates visible patterns</li>
+                <li><strong>Build Gradually:</strong> Increase intensity over time rather than trying to study for hours immediately</li>
+                <li><strong>Consistency Over Intensity:</strong> Regular short sessions are better than sporadic long ones</li>
+            </ul>
+
+            <h2>Heatmap Tips</h2>
+            
+            <div class="highlight-box">
+                <h4>Pro Tips</h4>
+                <ul>
+                    <li>Check your heatmap weekly to stay motivated</li>
+                    <li>Don't worry about perfect streaks - focus on overall consistency</li>
+                    <li>Use the heatmap to identify your most productive study times</li>
+                    <li>Share your progress with friends for accountability</li>
+                </ul>
+            </div>
+
+            <h3>Common Patterns</h3>
+            <ul>
+                <li><strong>New Year Effect:</strong> Many people start strong in January but fade by February</li>
+                <li><strong>Exam Periods:</strong> Intense study before exams, followed by breaks</li>
+                <li><strong>Summer Slumps:</strong> Reduced activity during vacation periods</li>
+                <li><strong>Weekend Warriors:</strong> Heavy weekend study to compensate for weekdays</li>
+            </ul>
+
+            <h2>Troubleshooting</h2>
+            
+            <h3>Data Issues</h3>
+            <ul>
+                <li><strong>Missing Data:</strong> If sessions aren't appearing, check that you're logging them properly</li>
+                <li><strong>Incorrect Times:</strong> Verify your timer settings and session logging</li>
+                <li><strong>Display Problems:</strong> Try refreshing the page or clearing browser cache</li>
+            </ul>
+
+            <div class="highlight-box">
+                <h4>Remember</h4>
+                <p>The heatmap is a tool for motivation and insight, not judgment. Every colored square represents progress, no matter how small. Focus on building positive habits rather than achieving perfect patterns.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CursorTrail {
+            constructor() {
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.init();
+            }
+
+            init() {
+                document.addEventListener('mousemove', (e) => {
+                    this.createTrailPoint(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    this.clearTrail();
+                });
+            }
+
+            createTrailPoint(x, y) {
+                const trailPoint = document.createElement('div');
+                trailPoint.className = 'cursor-trail';
+                trailPoint.style.left = x + 'px';
+                trailPoint.style.top = y + 'px';
+                
+                document.body.appendChild(trailPoint);
+                this.trail.push(trailPoint);
+
+                if (this.trail.length > this.maxTrailLength) {
+                    const oldPoint = this.trail.shift();
+                    if (oldPoint && oldPoint.parentNode) {
+                        oldPoint.parentNode.removeChild(oldPoint);
+                    }
+                }
+
+                setTimeout(() => {
+                    if (trailPoint.parentNode) {
+                        trailPoint.classList.add('fade');
+                        setTimeout(() => {
+                            if (trailPoint.parentNode) {
+                                trailPoint.parentNode.removeChild(trailPoint);
+                            }
+                        }, 100);
+                    }
+                }, 200);
+            }
+
+            clearTrail() {
+                this.trail.forEach(point => {
+                    if (point.parentNode) {
+                        point.parentNode.removeChild(point);
+                    }
+                });
+                this.trail = [];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new CursorTrail();
+        });
+    </script>
+</body>
+</html>

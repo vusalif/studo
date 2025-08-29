@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Studo</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="imgs/icons/48x48.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="imgs/icons/512x512.png">
+    <link rel="apple-touch-icon" href="imgs/icons/512x512.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kirang+Haerang&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: white;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            padding: 50px 20px;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.8;
+            transition: opacity 0.1s ease;
+        }
+
+        .cursor-trail.fade {
+            opacity: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .article-category {
+            font-size: 0.8rem;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
+        }
+
+        .article-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: center;
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #b3b3b3;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        .article-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 40px 0 20px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 30px 0 15px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content p {
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .article-content li {
+            margin-bottom: 10px;
+        }
+
+        .article-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .highlight-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .highlight-box h4 {
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .last-updated {
+            font-size: 0.8rem;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 30px 15px;
+            }
+
+            .article-title {
+                font-size: 2rem;
+            }
+
+            .back-button {
+                top: 20px;
+                left: 20px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Home</a>
+    
+    <div class="container">
+        <div class="article-header">
+            <div class="article-category">Legal</div>
+            <h1 class="article-title">Privacy Policy</h1>
+            <div class="article-meta">
+                <span>Privacy & Data Protection</span>
+                <span>•</span>
+                <span>Last updated: December 2024</span>
+            </div>
+        </div>
+
+        <div class="article-content">
+            <p>This Privacy Policy describes how Studo ("we", "our", or "us") collects, uses, and protects your information when you use our study tracking application.</p>
+
+            <h2>Information We Collect</h2>
+            
+            <h3>Free Version</h3>
+            <p>When using the free version of Studo:</p>
+            <ul>
+                <li><strong>Study Session Data:</strong> Timer durations, session notes, and study logs</li>
+                <li><strong>Local Storage:</strong> All data is stored locally in your browser</li>
+                <li><strong>No Personal Information:</strong> We do not collect names, emails, or personal identifiers</li>
+                <li><strong>No Analytics:</strong> We do not track your usage patterns or behavior</li>
+            </ul>
+
+            <h3>Pro Version</h3>
+            <p>When using the pro version of Studo:</p>
+            <ul>
+                <li><strong>Account Information:</strong> Email address for account creation and login</li>
+                <li><strong>Study Data:</strong> All study sessions, notes, goals, and progress data</li>
+                <li><strong>Payment Information:</strong> Processed securely through Gumroad (we do not store payment details)</li>
+                <li><strong>Cloud Backup:</strong> Your data is encrypted and stored securely in the cloud</li>
+            </ul>
+
+            <h2>How We Use Your Information</h2>
+            
+            <div class="highlight-box">
+                <h4>Free Version</h4>
+                <p>Your data never leaves your device. We have no access to your study information, notes, or any other data you create in the free version.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Pro Version</h4>
+                <p>We use your information to:</p>
+                <ul>
+                    <li>Provide cloud backup and synchronization across devices</li>
+                    <li>Generate analytics and progress reports</li>
+                    <li>Send important account-related notifications</li>
+                    <li>Provide customer support when requested</li>
+                </ul>
+            </div>
+
+            <h2>Data Storage and Security</h2>
+            
+            <h3>Free Version Security</h3>
+            <ul>
+                <li><strong>Local Storage Only:</strong> All data remains on your device</li>
+                <li><strong>Browser Security:</strong> Data is protected by your browser's security measures</li>
+                <li><strong>No Network Transmission:</strong> Your data never travels over the internet</li>
+            </ul>
+
+            <h3>Pro Version Security</h3>
+            <ul>
+                <li><strong>Encryption:</strong> All data is encrypted in transit and at rest</li>
+                <li><strong>Secure Servers:</strong> Data is stored on secure, encrypted servers</li>
+                <li><strong>Access Controls:</strong> Only authorized personnel can access data for support purposes</li>
+                <li><strong>Regular Backups:</strong> Your data is regularly backed up to prevent loss</li>
+            </ul>
+
+            <h2>Data Sharing</h2>
+            <p>We do not sell, trade, or share your personal information with third parties, except:</p>
+            <ul>
+                <li><strong>Payment Processing:</strong> Gumroad processes payments (they have their own privacy policy)</li>
+                <li><strong>Legal Requirements:</strong> If required by law or to protect our rights</li>
+                <li><strong>Your Consent:</strong> Only with your explicit permission</li>
+            </ul>
+
+            <h2>Your Rights</h2>
+            
+            <h3>Free Version</h3>
+            <ul>
+                <li><strong>Complete Control:</strong> You can delete all data by clearing your browser storage</li>
+                <li><strong>No Account Required:</strong> No personal information is collected</li>
+                <li><strong>Local Management:</strong> You manage your own data locally</li>
+            </ul>
+
+            <h3>Pro Version</h3>
+            <ul>
+                <li><strong>Access:</strong> You can view all your data through the application</li>
+                <li><strong>Export:</strong> You can export your data in CSV or PDF format</li>
+                <li><strong>Deletion:</strong> You can delete your account and all associated data</li>
+                <li><strong>Correction:</strong> You can update or correct your information</li>
+            </ul>
+
+            <h2>Cookies and Tracking</h2>
+            <p>Studo uses minimal cookies and tracking:</p>
+            <ul>
+                <li><strong>Essential Cookies:</strong> Required for basic functionality</li>
+                <li><strong>No Advertising:</strong> We do not use advertising cookies or tracking</li>
+                <li><strong>No Third-Party Analytics:</strong> We do not use Google Analytics or similar services</li>
+                <li><strong>Local Storage:</strong> Used to store your study data locally (free version)</li>
+            </ul>
+
+            <h2>Children's Privacy</h2>
+            <p>Studo is designed to be safe for users of all ages:</p>
+            <ul>
+                <li><strong>No Age Verification:</strong> We do not collect age information</li>
+                <li><strong>Educational Purpose:</strong> The app is designed for educational use</li>
+                <li><strong>Parental Control:</strong> Parents can monitor usage through local data (free version)</li>
+            </ul>
+
+            <h2>Data Retention</h2>
+            
+            <div class="highlight-box">
+                <h4>Free Version</h4>
+                <p>Data is retained as long as it exists in your browser's local storage. You can delete it at any time by clearing your browser data.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Pro Version</h4>
+                <p>We retain your data for as long as your account is active. If you delete your account, all data is permanently removed within 30 days.</p>
+            </div>
+
+            <h2>International Users</h2>
+            <p>If you are using Studo from outside the United States:</p>
+            <ul>
+                <li><strong>Data Transfer:</strong> Your data may be transferred to and processed in the United States</li>
+                <li><strong>GDPR Compliance:</strong> We comply with applicable data protection laws</li>
+                <li><strong>Your Rights:</strong> You have the same rights regardless of your location</li>
+            </ul>
+
+            <h2>Changes to This Policy</h2>
+            <p>We may update this Privacy Policy from time to time:</p>
+            <ul>
+                <li><strong>Notification:</strong> We will notify users of significant changes</li>
+                <li><strong>Continued Use:</strong> Continued use constitutes acceptance of changes</li>
+                <li><strong>Version History:</strong> Previous versions are available upon request</li>
+            </ul>
+
+            <h2>Contact Us</h2>
+            <p>If you have questions about this Privacy Policy or your data:</p>
+            <ul>
+                <li><strong>Email:</strong> Contact us through the application or website</li>
+                <li><strong>Data Requests:</strong> We respond to data requests within 30 days</li>
+                <li><strong>Support:</strong> We provide support for all privacy-related inquiries</li>
+            </ul>
+
+            <div class="last-updated">
+                Last updated: December 2024<br>
+                This policy is effective immediately for all users.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CursorTrail {
+            constructor() {
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.init();
+            }
+
+            init() {
+                document.addEventListener('mousemove', (e) => {
+                    this.createTrailPoint(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    this.clearTrail();
+                });
+            }
+
+            createTrailPoint(x, y) {
+                const trailPoint = document.createElement('div');
+                trailPoint.className = 'cursor-trail';
+                trailPoint.style.left = x + 'px';
+                trailPoint.style.top = y + 'px';
+                
+                document.body.appendChild(trailPoint);
+                this.trail.push(trailPoint);
+
+                if (this.trail.length > this.maxTrailLength) {
+                    const oldPoint = this.trail.shift();
+                    if (oldPoint && oldPoint.parentNode) {
+                        oldPoint.parentNode.removeChild(oldPoint);
+                    }
+                }
+
+                setTimeout(() => {
+                    if (trailPoint.parentNode) {
+                        trailPoint.classList.add('fade');
+                        setTimeout(() => {
+                            if (trailPoint.parentNode) {
+                                trailPoint.parentNode.removeChild(trailPoint);
+                            }
+                        }, 100);
+                    }
+                }, 200);
+            }
+
+            clearTrail() {
+                this.trail.forEach(point => {
+                    if (point.parentNode) {
+                        point.parentNode.removeChild(point);
+                    }
+                });
+                this.trail = [];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new CursorTrail();
+        });
+    </script>
+</body>
+</html>

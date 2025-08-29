@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started with Studo - Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kirang+Haerang&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: white;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            padding: 50px 20px;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.8;
+            transition: opacity 0.1s ease;
+        }
+
+        .cursor-trail.fade {
+            opacity: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .article-category {
+            font-size: 0.8rem;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
+        }
+
+        .article-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: center;
+            letter-spacing: 0.05em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.9rem;
+            color: #b3b3b3;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+
+        .article-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 40px 0 20px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 30px 0 15px 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .article-content p {
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .article-content ul, .article-content ol {
+            margin: 20px 0;
+            padding-left: 30px;
+        }
+
+        .article-content li {
+            margin-bottom: 10px;
+        }
+
+        .article-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .highlight-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .highlight-box h4 {
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 30px 15px;
+            }
+
+            .article-title {
+                font-size: 2rem;
+            }
+
+            .back-button {
+                top: 20px;
+                left: 20px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .article-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="docs.html" class="back-button">← Back to Docs</a>
+    
+    <div class="container">
+        <div class="article-header">
+            <div class="article-category">Getting Started</div>
+            <h1 class="article-title">Getting Started with Studo</h1>
+            <div class="article-meta">
+                <span>Beginner Guide</span>
+                <span>•</span>
+                <span>5 min read</span>
+            </div>
+        </div>
+
+        <div class="article-content">
+            <p>Welcome to Studo! This guide will help you get started with your study tracking journey. Studo is designed to help you build consistent study habits and track your progress over time.</p>
+
+            <h2>What is Studo?</h2>
+            <p>Studo is a minimalist study tracking application that helps you:</p>
+            <ul>
+                <li>Track your study sessions with timers and countdowns</li>
+                <li>Log your study activities with notes and images</li>
+                <li>Visualize your progress with a GitHub-style heatmap</li>
+                <li>Build consistent study habits and streaks</li>
+            </ul>
+
+            <h2>Choosing Your Version</h2>
+            <p>Studo comes in two versions:</p>
+
+            <div class="highlight-box">
+                <h4>Free Version</h4>
+                <p>Perfect for getting started with study tracking. Includes unlimited timer & countdown, session logging with notes, and all data stored locally in your browser.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Pro Version</h4>
+                <p>Advanced features including Pomodoro timers, goal setting, blurting technique, active recall flashcards, detailed analytics, and cloud backup.</p>
+            </div>
+
+            <h2>Your First Study Session</h2>
+            <h3>Step 1: Start a Timer</h3>
+            <p>Click the "Start" button on the Free or Pro version to begin your first study session. You can choose between:</p>
+            <ul>
+                <li><strong>Timer Mode:</strong> Count up from zero to track how long you study</li>
+                <li><strong>Countdown Mode:</strong> Set a specific time and count down to zero</li>
+                <li><strong>Pomodoro Mode:</strong> (Pro only) 25-minute focused work sessions with breaks</li>
+            </ul>
+
+            <h3>Step 2: Add Session Details</h3>
+            <p>After your study session, you can add:</p>
+            <ul>
+                <li>Notes about what you studied</li>
+                <li>Images or links to resources (Pro version supports multiple images)</li>
+                <li>Tags to categorize your study topics</li>
+            </ul>
+
+            <h3>Step 3: View Your Progress</h3>
+            <p>Check your heatmap to see your study patterns. The heatmap shows your study activity over the last year, with darker colors indicating more study time.</p>
+
+            <h2>Tips for Success</h2>
+            <ul>
+                <li><strong>Start Small:</strong> Begin with short 15-25 minute sessions</li>
+                <li><strong>Be Consistent:</strong> Try to study at the same time each day</li>
+                <li><strong>Use Notes:</strong> Document what you learned to reinforce retention</li>
+                <li><strong>Review Regularly:</strong> Check your heatmap weekly to see your progress</li>
+            </ul>
+
+            <div class="highlight-box">
+                <h4>Pro Tip</h4>
+                <p>If you're using the Pro version, set up goals to track specific learning objectives and use the blurting technique to capture what you've learned immediately after study sessions.</p>
+            </div>
+
+            <h2>Next Steps</h2>
+            <p>Now that you understand the basics, explore our other documentation to learn about specific features:</p>
+            <ul>
+                <li><a href="docs-timer-features.html" style="color: #ffffff; text-decoration: underline;">Timer & Countdown Features</a></li>
+                <li><a href="docs-session-logging.html" style="color: #ffffff; text-decoration: underline;">Session Logging & Notes</a></li>
+                <li><a href="docs-heatmap-guide.html" style="color: #ffffff; text-decoration: underline;">Understanding the Heatmap</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        class CursorTrail {
+            constructor() {
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.init();
+            }
+
+            init() {
+                document.addEventListener('mousemove', (e) => {
+                    this.createTrailPoint(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    this.clearTrail();
+                });
+            }
+
+            createTrailPoint(x, y) {
+                const trailPoint = document.createElement('div');
+                trailPoint.className = 'cursor-trail';
+                trailPoint.style.left = x + 'px';
+                trailPoint.style.top = y + 'px';
+                
+                document.body.appendChild(trailPoint);
+                this.trail.push(trailPoint);
+
+                if (this.trail.length > this.maxTrailLength) {
+                    const oldPoint = this.trail.shift();
+                    if (oldPoint && oldPoint.parentNode) {
+                        oldPoint.parentNode.removeChild(oldPoint);
+                    }
+                }
+
+                setTimeout(() => {
+                    if (trailPoint.parentNode) {
+                        trailPoint.classList.add('fade');
+                        setTimeout(() => {
+                            if (trailPoint.parentNode) {
+                                trailPoint.parentNode.removeChild(trailPoint);
+                            }
+                        }, 100);
+                    }
+                }, 200);
+            }
+
+            clearTrail() {
+                this.trail.forEach(point => {
+                    if (point.parentNode) {
+                        point.parentNode.removeChild(point);
+                    }
+                });
+                this.trail = [];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new CursorTrail();
+        });
+    </script>
+</body>
+</html>

@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heatmap Demo</title>
+    <title>Studo - Study Timer</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="imgs/icons/48x48.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="imgs/icons/512x512.png">
+    <link rel="apple-touch-icon" href="imgs/icons/512x512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kirang+Haerang&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -26,24 +30,471 @@
             line-height: 1.5;
             letter-spacing: 0.01em;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
             min-height: 100vh;
+            padding-top: 50px;
+            cursor: none;
+            overflow-x: hidden;
         }
 
-        .heatmap-container {
-            margin-top: 200px;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 100vw;
-            max-height: 100vh;
-            text-align: center;
-            overflow: visible;
+        .cursor-trail {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.8;
+            transition: opacity 0.1s ease;
+        }
+
+        .cursor-trail.fade {
+            opacity: 0;
+        }
+
+        .title-container {
+            position: relative;
+            margin-bottom: 50px;
+            z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #0f0f0f;
+            justify-content: center;
+            min-height: 100vh;
         }
+
+        .animated-title {
+            font-size: 6rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: center;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.1em;
+            flex-wrap: wrap;
+            height: 6rem;
+            line-height: 1;
+        }
+
+        .title-letter {
+            display: inline-block;
+            transition: all 0.3s ease;
+            transform-origin: center;
+            height: 6rem;
+            line-height: 6rem;
+            vertical-align: top;
+        }
+
+        .title-letter:hover {
+            transform: scale(1.1) rotate(5deg);
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+        }
+
+        .description {
+            font-size: 1.2rem;
+            color: #b3b3b3;
+            text-align: center;
+            margin-top: 20px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            opacity: 0.8;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
+            color: #0f0f0f;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.05em;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, #f0f0f0, #d0d0d0);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+        }
+
+        .features-section {
+            min-height: 100vh;
+            padding: 150px 20px 100px 20px;
+            background-color: #0f0f0f00;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .features-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 50px;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.05em;
+        }
+
+                 .features-grid {
+             display: grid;
+             grid-template-columns: repeat(2, 1fr);
+             gap: 60px;
+             max-width: 800px;
+             width: 100%;
+         }
+
+                 .feature-card {
+             background: rgba(255, 255, 255, 0.05);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             border-radius: 15px;
+             padding: 0;
+             text-align: center;
+             transition: all 0.3s ease;
+             backdrop-filter: blur(10px);
+             min-height: 300px;
+             display: flex;
+             flex-direction: column;
+             justify-content: space-between;
+             overflow: hidden;
+         }
+
+                 .feature-card:hover {
+             background: rgba(255, 255, 255, 0.08);
+             border-color: rgba(255, 255, 255, 0.2);
+         }
+
+         .feature-content {
+             display: flex;
+             flex-direction: column;
+             flex: 1;
+         }
+
+                 .feature-icon {
+             width: 100%;
+             height: 200px;
+             margin-bottom: 0;
+             opacity: 0.9;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             overflow: hidden;
+         }
+
+                 .feature-title {
+             font-size: 2rem;
+             font-weight: 700;
+             color: #ffffff;
+             margin: 20px 0;
+             font-family: 'Inter', sans-serif;
+             padding: 0 20px;
+         }
+
+                 .feature-list {
+             list-style: none;
+             padding: 0 20px 20px 20px;
+             margin: 0;
+             text-align: left;
+         }
+
+         .feature-list li {
+             font-size: 0.9rem;
+             color: #b3b3b3;
+             line-height: 1.4;
+             font-family: 'Inter', sans-serif;
+             margin-bottom: 6px;
+             padding-left: 15px;
+             position: relative;
+             white-space: nowrap;
+         }
+
+         .feature-list li:before {
+            content: "✓";
+             color: #ffffff;
+             font-weight: 600;
+             position: absolute;
+             left: -3px;
+         }
+
+         .feature-list li:last-child {
+             margin-bottom: 0;
+         }
+
+         .feature-button {
+             margin: 20px;
+             padding: 12px 24px;
+             border: none;
+             border-radius: 8px;
+             font-size: 1rem;
+             font-weight: 600;
+             font-family: 'Inter', sans-serif;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             text-transform: none;
+             letter-spacing: 0.05em;
+             align-self: center;
+             position: relative;
+         }
+
+         .free-button {
+             background: #ffffff;
+             color: #0f0f0f;
+         }
+
+         .free-button:hover {
+             background: #c4c4c4;
+         }
+
+         .pro-button {
+             background: #040404;
+             color: #ffffff;
+         }
+
+         .pro-button:hover {
+             background: #414141;
+         }
+
+         .free-button::after {
+             content: "No Login Required";
+             position: absolute;
+             bottom: 100%;
+             left: 50%;
+             transform: translateX(-50%);
+             background: rgba(0, 0, 0, 0.9);
+             color: white;
+             padding: 8px 12px;
+             border-radius: 6px;
+             font-size: 0.8rem;
+             white-space: nowrap;
+             opacity: 0;
+             visibility: hidden;
+             transition: all 0.3s ease;
+             z-index: 1000;
+             margin-bottom: 8px;
+         }
+
+         .free-button::before {
+             content: "";
+             position: absolute;
+             bottom: 100%;
+             left: 50%;
+             transform: translateX(-50%);
+             border: 5px solid transparent;
+             border-top-color: rgba(0, 0, 0, 0.9);
+             opacity: 0;
+             visibility: hidden;
+             transition: all 0.3s ease;
+             z-index: 1000;
+             margin-bottom: 3px;
+         }
+
+         .free-button:hover::after,
+         .free-button:hover::before {
+             opacity: 1;
+             visibility: visible;
+         }
+
+
+
+         .docs-section {
+             padding: 40px 20px;
+             text-align: center;
+             background-color: #0f0f0f00;
+         }
+
+         .docs-divider {
+             border: none;
+             height: 1px;
+             background: rgba(255, 255, 255, 0.1);
+             margin: 0 auto 30px auto;
+             max-width: 200px;
+         }
+
+         .docs-container {
+             max-width: 600px;
+             margin: 0 auto;
+         }
+
+         .docs-link {
+             color: #888;
+             font-family: 'Inter', sans-serif;
+             font-weight: 300;
+             font-size: 0.9rem;
+             text-decoration: none;
+             letter-spacing: 0.05em;
+             transition: color 0.3s ease;
+         }
+
+         .docs-link:hover {
+             color: #b3b3b3;
+         }
+
+         .docs-separator {
+             color: #666;
+             margin: 0 15px;
+             font-family: 'Inter', sans-serif;
+         }
+
+        @media (max-width: 768px) {
+            .animated-title {
+                font-size: 3.5rem;
+                letter-spacing: 0.05em;
+                justify-content: center;
+                align-items: center;
+                gap: 0.05em;
+                height: 3.5rem;
+            }
+
+            .title-letter {
+                height: 3.5rem;
+                line-height: 3.5rem;
+            }
+            
+            .description {
+                font-size: 1rem;
+                margin-top: 15px;
+                max-width: 300px;
+                padding: 0 20px;
+            }
+
+            .start-button {
+                padding: 12px 30px;
+                font-size: 1rem;
+                margin-top: 40px;
+            }
+
+            .features-title {
+                font-size: 2.2rem;
+                margin-bottom: 40px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                padding: 0 20px;
+                max-width: 400px;
+            }
+
+            .feature-card {
+                padding: 30px;
+                min-height: 250px;
+            }
+            
+            body {
+                padding-top: 30px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            
+            .title-container {
+                margin-bottom: 30px;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 80vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .animated-title {
+                font-size: 2.8rem;
+                letter-spacing: 0.03em;
+                gap: 0.03em;
+                height: 2.8rem;
+            }
+
+            .title-letter {
+                height: 2.8rem;
+                line-height: 2.8rem;
+            }
+            
+            .description {
+                font-size: 0.9rem;
+                max-width: 280px;
+                padding: 0 15px;
+            }
+
+            .start-button {
+                padding: 10px 25px;
+                font-size: 0.9rem;
+                margin-top: 35px;
+            }
+
+            .features-title {
+                font-size: 1.8rem;
+                margin-bottom: 30px;
+            }
+
+            .features-grid {
+                padding: 0 15px;
+                max-width: 350px;
+            }
+
+            .feature-card {
+                padding: 25px;
+                min-height: 220px;
+            }
+            
+            body {
+                padding-top: 20px;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+            .docs-section {
+                padding: 30px 15px;
+            }
+
+            .docs-divider {
+                max-width: 150px;
+                margin-bottom: 25px;
+            }
+
+            .docs-link {
+                font-size: 0.85rem;
+            }
+
+            .docs-separator {
+                margin: 0 10px;
+            }
+        }
+
+                 .heatmap-container {
+             margin-top: 50px;
+             padding: 20px;
+             border-radius: 8px;
+             max-width: 100vw;
+             max-height: 100vh;
+             text-align: center;
+             overflow: visible;
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             background-color: #0f0f0f;
+         }
 
         .heatmap-grid {
             display: flex;
@@ -63,29 +514,33 @@
             max-width: 100%;
         }
 
-        .day-label {
-            width: 20px;
-            text-align: right;
-            margin-right: 4px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 8px;
-            color: #8b949e;
-        }
+                 .day-label {
+             width: 30px;
+             text-align: right;
+             margin-right: 8px;
+             font-family: 'IBM Plex Mono', monospace;
+             font-size: 10px;
+             color: #8b949e;
+         }
 
-        .heatmap-cell {
-            width: 7px;
-            height: 7px;
-            border-radius: 1px;
-            margin: 0.5px;
-        }
+                 .heatmap-cell {
+             width: 12px;
+             height: 12px;
+             border-radius: 2px;
+             margin: 1px;
+         }
 
         @media (max-width: 768px) {
             .heatmap-container {
                 max-width: 95vw;
                 padding: 10px;
+                margin-top: 0;
             }
             
-
+            .heatmap-grid {
+                max-width: 100%;
+                overflow-x: auto;
+            }
             
             .day-label {
                 width: 15px;
@@ -93,22 +548,239 @@
                 margin-right: 2px;
             }
             
-            .heatmap-cell {
-                width: 10px;
-                height: 10px;
-                margin: 0.3px;
+                         .heatmap-cell {
+                 width: 10px;
+                 height: 10px;
+                 margin: 0.5px;
+             }
+        }
+
+        @media (max-width: 480px) {
+            .heatmap-container {
+                max-width: 98vw;
+                padding: 5px;
             }
             
-
+                         .day-label {
+                 width: 20px;
+                 font-size: 7px;
+                 margin-right: 3px;
+             }
+             
+             .heatmap-cell {
+                 width: 8px;
+                 height: 8px;
+                 margin: 0.3px;
+             }
         }
     </style>
 </head>
 <body>
+    <div class="title-container">
+        <div class="animated-title" id="animatedTitle">
+            <span class="title-letter" data-letter="S">S</span>
+            <span class="title-letter" data-letter="T">T</span>
+            <span class="title-letter" data-letter="U">U</span>
+            <span class="title-letter" data-letter="D">D</span>
+            <span class="title-letter" data-letter="O">O</span>
+        </div>
+        <div class="description">track your study, grow your streaks</div>
+        <button class="start-button" id="startButton">Start</button>
+    </div>
+    
     <div class="heatmap-container" id="heatmap">
         <!-- Heatmap will be generated here -->
     </div>
 
+    <div class="features-section" id="featuresSection">
+        <h2 class="features-title"></h2>
+                 <div class="features-grid">
+             <div class="feature-card">
+                 <div class="feature-content">
+                     <div class="feature-icon">
+                         <img src="imgs/free.png" alt="Free" style="width: 100%; height: 100%; object-fit: cover;">
+                     </div>
+                     <h3 class="feature-title">Free</h3>
+                     <ul class="feature-list">
+                         <li>unlimited timer & countdown with github-style</li>
+                         <li>session log with notes + optional image link</li>
+                         <li>all data stored locally in your browser</li>
+                     </ul>
+                 </div>
+                 <button class="feature-button free-button" onclick="window.location.href='free/index.html'">Start</button>
+             </div>
+             <div class="feature-card">
+                 <div class="feature-content">
+                     <div class="feature-icon">
+                         <img src="imgs/pro.png" alt="Pro" style="width: 100%; height: 100%; object-fit: cover;">
+                     </div>
+                     <h3 class="feature-title">Pro</h3>
+                     <ul class="feature-list">
+                         <li>unlimited timer, countdown, and pomodoro</li>
+                         <li>session log with notes + multiple images</li>
+                         <li>full analytics of study history over time</li>
+                         <li>goal setting + progress tracking</li>
+                         <li>blurting: capture what you learned asap</li>
+                         <li>active recall: create flashcards, review them</li>
+                         <li>detailed flashcard analytics</li>
+                         <li>account settings + cloud backup</li>
+                     </ul>
+                 </div>
+                 <button class="feature-button pro-button" onclick="window.open('https://vusalmran.gumroad.com/l/prostudo', '_blank')">$12.99/lifetime</button>
+             </div>
+         </div>
+    </div>
+
+    <div class="docs-section">
+        <hr class="docs-divider">
+        <div class="docs-container">
+            <a href="docs.html" class="docs-link">Documentation</a>
+            <span class="docs-separator">•</span>
+            <a href="privacy-policy.html" class="docs-link">Privacy Policy</a>
+        </div>
+    </div>
+
     <script>
+        class SmoothScroll {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                const startButton = document.getElementById('startButton');
+                const featuresSection = document.getElementById('featuresSection');
+
+                if (startButton && featuresSection) {
+                    startButton.addEventListener('click', () => {
+                        this.scrollToFeatures(featuresSection);
+                    });
+                }
+            }
+
+            scrollToFeatures(targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        class CursorTrail {
+            constructor() {
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.init();
+            }
+
+            init() {
+                document.addEventListener('mousemove', (e) => {
+                    this.createTrailPoint(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    this.clearTrail();
+                });
+            }
+
+            createTrailPoint(x, y) {
+                const trailPoint = document.createElement('div');
+                trailPoint.className = 'cursor-trail';
+                trailPoint.style.left = x + 'px';
+                trailPoint.style.top = y + 'px';
+                
+                document.body.appendChild(trailPoint);
+                this.trail.push(trailPoint);
+
+                // Remove old trail points
+                if (this.trail.length > this.maxTrailLength) {
+                    const oldPoint = this.trail.shift();
+                    if (oldPoint && oldPoint.parentNode) {
+                        oldPoint.parentNode.removeChild(oldPoint);
+                    }
+                }
+
+                // Fade out trail points
+                setTimeout(() => {
+                    if (trailPoint.parentNode) {
+                        trailPoint.classList.add('fade');
+                        setTimeout(() => {
+                            if (trailPoint.parentNode) {
+                                trailPoint.parentNode.removeChild(trailPoint);
+                            }
+                        }, 100);
+                    }
+                }, 200);
+            }
+
+            clearTrail() {
+                this.trail.forEach(point => {
+                    if (point.parentNode) {
+                        point.parentNode.removeChild(point);
+                    }
+                });
+                this.trail = [];
+            }
+        }
+
+        class AnimatedTitle {
+            constructor() {
+                this.titleLetters = document.querySelectorAll('.title-letter');
+                this.fonts = [
+                    'Orbitron, sans-serif',
+                    'Space Grotesk, sans-serif', 
+                    'Inter, sans-serif',
+                    'JetBrains Mono, monospace',
+                    'Source Code Pro, monospace',
+                    'IBM Plex Mono, monospace',
+                    'Dancing Script, cursive',
+                    'Kirang Haerang, cursive',
+                    'Playfair Display, serif'
+                ];
+                this.weights = [300, 400, 500, 600, 700, 800, 900];
+                this.init();
+            }
+
+            init() {
+                this.startAnimation();
+            }
+
+            getRandomFont() {
+                const randomFont = this.fonts[Math.floor(Math.random() * this.fonts.length)];
+                const randomWeight = this.weights[Math.floor(Math.random() * this.weights.length)];
+                return {
+                    fontFamily: randomFont,
+                    fontWeight: randomWeight
+                };
+            }
+
+            animateLetter(letter) {
+                const fontStyle = this.getRandomFont();
+                letter.style.fontFamily = fontStyle.fontFamily;
+                letter.style.fontWeight = fontStyle.fontWeight;
+                
+                // Add a subtle scale animation
+                letter.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    letter.style.transform = 'scale(1)';
+                }, 150);
+            }
+
+            startAnimation() {
+                // Animate each letter at different intervals for a wave effect
+                this.titleLetters.forEach((letter, index) => {
+                    // Initial random font
+                    const fontStyle = this.getRandomFont();
+                    letter.style.fontFamily = fontStyle.fontFamily;
+                    letter.style.fontWeight = fontStyle.fontWeight;
+                    
+                    // Set up continuous animation with staggered timing
+                    setInterval(() => {
+                        this.animateLetter(letter);
+                    }, 800 + (index * 200)); // Staggered timing: 800ms, 1000ms, 1200ms, 1400ms, 1600ms
+                });
+            }
+        }
+
         class RandomHeatmap {
             constructor() {
                 this.heatmapContainer = document.getElementById('heatmap');
@@ -208,8 +880,11 @@
             }
         }
 
-        // Initialize the random heatmap when the page loads
+        // Initialize all components when the page loads
         document.addEventListener('DOMContentLoaded', () => {
+            new SmoothScroll();
+            new CursorTrail();
+            new AnimatedTitle();
             new RandomHeatmap();
         });
     </script>

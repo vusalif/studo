@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studo Documentation</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="imgs/icons/48x48.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="imgs/icons/512x512.png">
+    <link rel="apple-touch-icon" href="imgs/icons/512x512.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kirang+Haerang&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: white;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            min-height: 100vh;
+            padding: 50px 20px;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.8;
+            transition: opacity 0.1s ease;
+        }
+
+        .cursor-trail.fade {
+            opacity: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-align: center;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 20px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #b3b3b3;
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .post-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .post-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .post-category {
+            font-size: 0.8rem;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 15px;
+        }
+
+        .post-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.3;
+        }
+
+        .post-excerpt {
+            font-size: 0.95rem;
+            color: #b3b3b3;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .read-time {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 30px 15px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .back-button {
+                top: 20px;
+                left: 20px;
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .posts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .post-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Home</a>
+    
+    <div class="header">
+        <h1>Documentation</h1>
+        <p>Learn how to use Studo effectively with our comprehensive guides and tutorials</p>
+    </div>
+
+    <div class="posts-grid">
+        <a href="docs-getting-started.html" class="post-card">
+            <div class="post-category">Getting Started</div>
+            <h2 class="post-title">Getting Started with Studo</h2>
+            <p class="post-excerpt">Learn the basics of Studo, how to set up your first study session, and navigate the interface effectively.</p>
+            <div class="post-meta">
+                <span>Beginner Guide</span>
+                <span class="read-time">5 min read</span>
+            </div>
+        </a>
+
+        <a href="docs-timer-features.html" class="post-card">
+            <div class="post-category">Features</div>
+            <h2 class="post-title">Timer & Countdown Features</h2>
+            <p class="post-excerpt">Master the timer functionality, learn about different timer modes, and discover advanced countdown options.</p>
+            <div class="post-meta">
+                <span>Feature Guide</span>
+                <span class="read-time">7 min read</span>
+            </div>
+        </a>
+
+        <a href="docs-session-logging.html" class="post-card">
+            <div class="post-category">Data Management</div>
+            <h2 class="post-title">Session Logging & Notes</h2>
+            <p class="post-excerpt">Learn how to log your study sessions, add notes, and track your progress over time with detailed analytics.</p>
+            <div class="post-meta">
+                <span>Tutorial</span>
+                <span class="read-time">6 min read</span>
+            </div>
+        </a>
+
+        <a href="docs-heatmap-guide.html" class="post-card">
+            <div class="post-category">Analytics</div>
+            <h2 class="post-title">Understanding the Heatmap</h2>
+            <p class="post-excerpt">Decode your study patterns with the GitHub-style heatmap visualization and learn how to interpret your data.</p>
+            <div class="post-meta">
+                <span>Analytics</span>
+                <span class="read-time">4 min read</span>
+            </div>
+        </a>
+
+        <a href="docs-pro-features.html" class="post-card">
+            <div class="post-category">Pro Features</div>
+            <h2 class="post-title">Pro Features Deep Dive</h2>
+            <p class="post-excerpt">Explore advanced features like goal setting, blurting technique, active recall flashcards, and cloud backup.</p>
+            <div class="post-meta">
+                <span>Advanced</span>
+                <span class="read-time">10 min read</span>
+            </div>
+        </a>
+
+        <a href="docs-troubleshooting.html" class="post-card">
+            <div class="post-category">Support</div>
+            <h2 class="post-title">Troubleshooting & FAQ</h2>
+            <p class="post-excerpt">Common issues, frequently asked questions, and solutions to help you get the most out of Studo.</p>
+            <div class="post-meta">
+                <span>Support</span>
+                <span class="read-time">8 min read</span>
+            </div>
+        </a>
+    </div>
+
+    <script>
+        class CursorTrail {
+            constructor() {
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.init();
+            }
+
+            init() {
+                document.addEventListener('mousemove', (e) => {
+                    this.createTrailPoint(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    this.clearTrail();
+                });
+            }
+
+            createTrailPoint(x, y) {
+                const trailPoint = document.createElement('div');
+                trailPoint.className = 'cursor-trail';
+                trailPoint.style.left = x + 'px';
+                trailPoint.style.top = y + 'px';
+                
+                document.body.appendChild(trailPoint);
+                this.trail.push(trailPoint);
+
+                if (this.trail.length > this.maxTrailLength) {
+                    const oldPoint = this.trail.shift();
+                    if (oldPoint && oldPoint.parentNode) {
+                        oldPoint.parentNode.removeChild(oldPoint);
+                    }
+                }
+
+                setTimeout(() => {
+                    if (trailPoint.parentNode) {
+                        trailPoint.classList.add('fade');
+                        setTimeout(() => {
+                            if (trailPoint.parentNode) {
+                                trailPoint.parentNode.removeChild(trailPoint);
+                            }
+                        }, 100);
+                    }
+                }, 200);
+            }
+
+            clearTrail() {
+                this.trail.forEach(point => {
+                    if (point.parentNode) {
+                        point.parentNode.removeChild(point);
+                    }
+                });
+                this.trail = [];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new CursorTrail();
+        });
+    </script>
+</body>
+</html>
