@@ -29,6 +29,10 @@ class StudyTimer {
         // Debug counter for pause button clicks
         this.pauseButtonClickCount = 0;
         
+        // Hack mode
+        this.hackMode = false;
+        this.hackInput = '';
+        
         // Store function references for proper event listener management
         this.startFunction = () => this.start();
         this.stopFunction = () => this.handleStop();
@@ -1920,7 +1924,11 @@ class StudyTimer {
                     // Add special styling for today
                     const todayStyle = isToday ? 'border: 2px solidrgba(255, 204, 0, 0.46); box-shadow: 0 0 5pxrgba(255, 204, 0, 0.52);' : '';
                     
-                    html += `<div style="width: 12px; height: 12px; background-color: ${color}; border-radius: 2px; border: 1px solid #30363d; cursor: pointer; ${todayStyle}; transition: all 0.2s ease;" onmouseover="this.style.transform='scale(1.3)'; this.style.zIndex='10';" onmouseout="this.style.transform='scale(1)'; this.style.zIndex='1';" title="${formattedDate}: ${displayTime} studied${isToday ? ' (Today)' : ''}"></div>`;
+                    // Add hack mode click functionality
+                    const hackDataAttr = this.hackMode ? `data-hack-date="${dateKey}"` : '';
+                    const hackCursor = this.hackMode ? 'cursor: pointer;' : 'cursor: pointer;';
+                    
+                    html += `<div style="width: 12px; height: 12px; background-color: ${color}; border-radius: 2px; border: 1px solid #30363d; ${hackCursor} ${todayStyle}; transition: all 0.2s ease;" onmouseover="this.style.transform='scale(1.3)'; this.style.zIndex='10';" onmouseout="this.style.transform='scale(1)'; this.style.zIndex='1';" title="${formattedDate}: ${displayTime} studied${isToday ? ' (Today)' : ''}${this.hackMode ? ' (Click to add time)' : ''}" ${hackDataAttr}></div>`;
                 } else {
                     // Empty day (no date)
                     html += '<div style="width: 12px; height: 12px; background-color: transparent; border: 1px solid transparent;"></div>';
@@ -1931,6 +1939,26 @@ class StudyTimer {
         }
         
         html += '</div>'; // Close the main flex container
+        
+        // Add statistics below the heatmap
+        const statsTotalStudyTime = Object.values(heatmapData).reduce((sum, seconds) => sum + seconds, 0);
+        const statsTotalHours = Math.floor(statsTotalStudyTime / 3600);
+        const statsTotalMinutes = Math.floor((statsTotalStudyTime % 3600) / 60);
+        const totalSessions = this.studySessions.length;
+        
+        // Format total time display
+        let timeDisplay;
+        if (statsTotalHours > 0) {
+            timeDisplay = statsTotalMinutes > 0 ? `${statsTotalHours}h ${statsTotalMinutes}m` : `${statsTotalHours}h`;
+        } else {
+            timeDisplay = `${statsTotalMinutes}m`;
+        }
+        
+        html += `
+            <div style="margin-top: 16px; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #666;">
+                ${timeDisplay} total • ${totalSessions} sessions
+            </div>
+        `;
         
         this.heatmapContainer.innerHTML = html;
     }
@@ -2984,6 +3012,11 @@ class StudyTimer {
                     console.log('⌨️ Shortcut: Show help (H)');
                     this.showShortcutsHelp();
                     break;
+                    
+                default:
+                    // Check for hack mode activation
+                    this.checkHackMode(key);
+                    break;
             }
         });
         
@@ -3135,6 +3168,112 @@ class StudyTimer {
                 this.deferredPrompt = null;
                 this.hideInstallButton();
             });
+        }
+    }
+    
+    checkHackMode(key) {
+        // Add the key to hack input
+        this.hackInput += key;
+        
+        // Keep only last 2 characters
+        if (this.hackInput.length > 2) {
+            this.hackInput = this.hackInput.slice(-2);
+        }
+        
+        // Check if "uy" is typed
+        if (this.hackInput === 'uy') {
+            this.activateHackMode();
+        }
+    }
+    
+    activateHackMode() {
+        this.hackMode = true;
+        this.hackInput = '';
+        console.log('🔓 Hack mode activated');
+        
+        // Add visual indicator (subtle)
+        document.body.style.border = '2px solid #ff6b6b';
+        setTimeout(() => {
+            document.body.style.border = 'none';
+        }, 2000);
+        
+        // Regenerate heatmap with click handlers
+        this.updateStudyDisplay();
+        
+        // Add event delegation for hack mode clicks
+        this.setupHackModeClickHandler();
+    }
+    
+    setupHackModeClickHandler() {
+        // Remove any existing hack mode click handler
+        if (this.hackModeClickHandler) {
+            this.heatmapContainer.removeEventListener('click', this.hackModeClickHandler);
+        }
+        
+        // Add new click handler
+        this.hackModeClickHandler = (event) => {
+            if (!this.hackMode) return;
+            
+            const target = event.target;
+            const hackDate = target.getAttribute('data-hack-date');
+            
+            if (hackDate) {
+                console.log('🔧 Heatmap block clicked for date:', hackDate);
+                this.handleHackClick(hackDate);
+            }
+        };
+        
+        this.heatmapContainer.addEventListener('click', this.hackModeClickHandler);
+        console.log('🔧 Hack mode click handler attached');
+    }
+    
+    addHackSession(date, minutes) {
+        if (!this.hackMode) return;
+        
+        const seconds = minutes * 60;
+        
+        // Check if session already exists for this date
+        const existingSessionIndex = this.studySessions.findIndex(session => session.date === date);
+        
+        if (existingSessionIndex !== -1) {
+            // Update existing session
+            this.studySessions[existingSessionIndex].seconds += seconds;
+            this.studySessions[existingSessionIndex].minutes = Math.floor(this.studySessions[existingSessionIndex].seconds / 60);
+            this.studySessions[existingSessionIndex].secondsRemainder = this.studySessions[existingSessionIndex].seconds % 60;
+        } else {
+            // Create new session
+            this.studySessions.push({
+                date: date,
+                timestamp: new Date(date + 'T12:00:00.000Z').toISOString(),
+                seconds: seconds,
+                minutes: minutes,
+                secondsRemainder: 0,
+                description: undefined,
+                image: undefined,
+                notes: undefined
+            });
+        }
+        
+        // Save and update display
+        this.saveStudySessions();
+        this.updateStudyDisplay();
+        this.updateLogDisplay();
+        
+        console.log(`Added ${minutes} minutes to ${date}`);
+    }
+    
+    handleHackClick(date) {
+        console.log('🔧 handleHackClick called for date:', date);
+        console.log('🔧 Hack mode active:', this.hackMode);
+        
+        if (!this.hackMode) {
+            console.log('❌ Hack mode not active, ignoring click');
+            return;
+        }
+        
+        const minutes = prompt(`Add study time for ${date} (in minutes):`, '60');
+        if (minutes !== null && !isNaN(minutes) && minutes > 0) {
+            this.addHackSession(date, parseInt(minutes));
         }
     }
     
