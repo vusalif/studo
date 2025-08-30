@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studo - Create Account</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Supabase JavaScript Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="84f27685-c8d6-4759-9048-71ef2fba5e1b"></script>
+    <style>
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .login-title {
+            text-align: center;
+            color: #fff;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #fff;
+            color: #0f0f0f;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            color: #4ade80;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+            font-weight: 500;
+            background: rgba(74, 222, 128, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <form class="login-form" id="createForm">
+            <h1 class="login-title">Studo</h1>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Create a password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="signupToken">Signup Token</label>
+                <input type="text" id="signupToken" name="signupToken" placeholder="Enter your signup token" required maxlength="8" style="text-transform: uppercase;">
+                <small style="color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; margin-top: 5px; display: block;">
+                    You need a valid signup token to create an account
+                </small>
+            </div>
+            
+            <button type="submit" class="login-btn">Create Account</button>
+            
+            <div class="error-message" id="errorMessage">
+                There was an error creating your account. Please try again.
+            </div>
+
+            <div class="success-message" id="successMessage">
+                Account created successfully! You can now login with your credentials.
+            </div>
+
+            <div class="login-link">
+                Already have an account? <a href="./login.html">Login here</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Wait for Supabase to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already logged in
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                window.location.href = './';
+            }
+            
+            // Focus on email field when page loads
+            document.getElementById('email').focus();
+            
+            // Auto-uppercase token input
+            document.getElementById('signupToken').addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+            
+            // Handle create account form submission
+            document.getElementById('createForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const signupToken = document.getElementById('signupToken').value.toUpperCase();
+                const errorMessage = document.getElementById('errorMessage');
+                const successMessage = document.getElementById('successMessage');
+                const createBtn = document.querySelector('.login-btn');
+                
+                // Clear previous messages
+                errorMessage.classList.remove('show');
+                successMessage.classList.remove('show');
+                
+                // Validate passwords match
+                if (password !== confirmPassword) {
+                    errorMessage.textContent = 'Passwords do not match. Please try again.';
+                    errorMessage.classList.add('show');
+                    document.getElementById('confirmPassword').focus();
+                    return;
+                }
+                
+                // Validate password length
+                if (password.length < 6) {
+                    errorMessage.textContent = 'Password must be at least 6 characters long.';
+                    errorMessage.classList.add('show');
+                    document.getElementById('password').focus();
+                    return;
+                }
+                
+                // Validate email format more strictly
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(email)) {
+                    errorMessage.textContent = 'Please enter a valid email address.';
+                    errorMessage.classList.add('show');
+                    document.getElementById('email').focus();
+                    return;
+                }
+                
+                // Validate signup token format
+                const tokenRegex = /^[A-Z0-9]{8}$/;
+                if (!tokenRegex.test(signupToken)) {
+                    errorMessage.textContent = 'Please enter a valid 8-character signup token.';
+                    errorMessage.classList.add('show');
+                    document.getElementById('signupToken').focus();
+                    return;
+                }
+                
+                // Show loading state
+                createBtn.textContent = 'Creating Account...';
+                createBtn.disabled = true;
+                
+                try {
+                    // Wait for Supabase to be ready
+                    let attempts = 0;
+                    const maxAttempts = 50; // 5 seconds max wait
+                    
+                    while (attempts < maxAttempts) {
+                        if (window.SupabaseService && window.SupabaseService.isSupabaseReady()) {
+                            break;
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
+                    }
+                    
+                    if (!window.SupabaseService || !window.SupabaseService.isSupabaseReady()) {
+                        throw new Error('Authentication service is not ready. Please try again.');
+                    }
+                    
+                    // First validate the token
+                    const { data: tokenData, error: tokenError } = await window.SupabaseService.supabase
+                        .rpc('validate_and_use_token', { token_input: signupToken });
+                    
+                    if (tokenError) {
+                        console.error('Token validation error:', tokenError);
+                        throw new Error('Token validation failed. Please try again.');
+                    }
+                    
+                    if (!tokenData) {
+                        throw new Error('Invalid or already used signup token. Please check your token and try again.');
+                    }
+                    
+                    // Attempt to create account with Supabase
+                    const { data, error } = await window.SupabaseService.auth.signUp(email, password);
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    if (data.user) {
+                        // Account created successfully
+                        console.log('Account created successfully for:', data.user.email);
+                        
+                        // Show success message
+                        successMessage.textContent = 'Account created successfully! You can now login with your credentials.';
+                        successMessage.classList.add('show');
+                        
+                        // Clear form
+                        document.getElementById('email').value = '';
+                        document.getElementById('password').value = '';
+                        document.getElementById('confirmPassword').value = '';
+                        document.getElementById('signupToken').value = '';
+                        
+                        // Redirect to login page after a short delay
+                        setTimeout(() => {
+                            window.location.href = './login.html';
+                        }, 2000);
+                    } else {
+                        throw new Error('Account creation failed');
+                    }
+                    
+                } catch (error) {
+                    console.error('Account creation error:', error);
+                    
+                    // Show error message
+                    let errorText = 'There was an error creating your account. Please try again.';
+                    
+                    if (error.message) {
+                        if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+                            errorText = 'An account with this email already exists. Please try logging in instead.';
+                        } else if (error.message.includes('Invalid email') || error.message.includes('email address') || error.message.includes('is invalid')) {
+                            errorText = 'Please enter a valid email address. Make sure it includes a proper domain (e.g., @gmail.com, @yahoo.com).';
+                        } else if (error.message.includes('Password should be at least')) {
+                            errorText = 'Password must be at least 6 characters long.';
+                        } else if (error.message.includes('Email rate limit')) {
+                            errorText = 'Too many signup attempts. Please wait a few minutes before trying again.';
+                        } else if (error.message.includes('Signup is disabled')) {
+                            errorText = 'Account creation is currently disabled. Please contact support.';
+                        } else if (error.message.includes('Invalid or already used signup token')) {
+                            errorText = 'Invalid or already used signup token. Please check your token and try again.';
+                        } else if (error.message.includes('Token validation failed')) {
+                            errorText = 'Token validation failed. Please try again.';
+                        } else {
+                            errorText = error.message;
+                        }
+                    }
+                    
+                    errorMessage.textContent = errorText;
+                    errorMessage.classList.add('show');
+                    
+                    // Clear password fields
+                    document.getElementById('password').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                    
+                    // Focus on password field
+                    document.getElementById('password').focus();
+                } finally {
+                    // Reset button state
+                    createBtn.textContent = 'Create Account';
+                    createBtn.disabled = false;
+                }
+            });
+
+            // Real-time password confirmation validation
+            document.getElementById('confirmPassword').addEventListener('input', function() {
+                const password = document.getElementById('password').value;
+                const confirmPassword = this.value;
+                const errorMessage = document.getElementById('errorMessage');
+                
+                if (confirmPassword && password !== confirmPassword) {
+                    errorMessage.textContent = 'Passwords do not match.';
+                    errorMessage.classList.add('show');
+                } else if (confirmPassword && password === confirmPassword) {
+                    errorMessage.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

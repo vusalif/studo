@@ -326,6 +326,37 @@ const auth = {
     }
 };
 
+// Database functions for signup tokens
+const signupTokens = {
+    // Validate and use a signup token
+    async validateAndUseToken(token) {
+        try {
+            const { data, error } = await supabaseClient
+                .rpc('validate_and_use_token', { token_input: token });
+            
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Token validation error:', error);
+            return { data: null, error };
+        }
+    },
+
+    // Get available token count (admin function)
+    async getAvailableTokenCount() {
+        try {
+            const { data, error } = await supabaseClient
+                .rpc('get_available_token_count');
+            
+            if (error) throw error;
+            return { data, error: null };
+        } catch (error) {
+            console.error('Get token count error:', error);
+            return { data: null, error };
+        }
+    }
+};
+
 // Database functions for study sessions
 const studySessions = {
     // Get all sessions for current user
@@ -500,6 +531,7 @@ if (typeof module !== 'undefined' && module.exports) {
     window.SupabaseService = { 
         supabase: supabaseClient, // Direct access to the client
         auth, 
+        signupTokens,
         studySessions, 
         timerSettings, 
         SUPABASE_CONFIG,
