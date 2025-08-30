@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Kirang+Haerang&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="84f27685-c8d6-4759-9048-71ef2fba5e1b"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
 </head>
 <body>
     <!-- Loading screen while checking authentication -->
@@ -444,6 +445,34 @@
         </div>
     </div>
     
+    <!-- Particles Container -->
+    <div id="tsparticles" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none;"></div>
+    
+    <!-- Milestone Congratulations Modal -->
+    <div id="milestoneModal" class="milestone-modal" style="display: none;">
+        <div class="milestone-content">
+            <div class="milestone-header">
+                <h2>🎉 Congratulations!</h2>
+                <div class="milestone-achievement">
+                    <span class="milestone-number" id="milestoneNumber">0</span>
+                    <span class="milestone-text">Study Sessions Completed!</span>
+                </div>
+            </div>
+            <div class="milestone-body">
+                <div class="milestone-gif-container">
+                    <img id="milestoneGif" class="milestone-gif" src="" alt="Milestone celebration" style="display: none;">
+                </div>
+                <p id="milestoneMessage">You've reached an amazing milestone!</p>
+                <div class="milestone-badge" id="milestoneBadge">
+                    <span class="badge-icon">🏆</span>
+                    <span class="badge-text">Milestone Achiever</span>
+                </div>
+            </div>
+            <div class="milestone-footer">
+                <button class="milestone-close-btn" id="milestoneCloseBtn">Awesome!</button>
+            </div>
+        </div>
+    </div>
 
     
     <!-- Chart.js for analytics -->
@@ -555,7 +584,19 @@
                     
                     // Fallback: use localStorage data if Supabase is not available or fails
                     console.log('⚠️ Using localStorage fallback');
-                    showMainContent();
+                    
+                    // Double-check that we have valid localStorage data before showing content
+                    const hasValidLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                                            localStorage.getItem('userEmail') && 
+                                            localStorage.getItem('userId');
+                    
+                    if (hasValidLocalAuth) {
+                        console.log('✅ Valid localStorage auth data found, showing content');
+                        showMainContent();
+                    } else {
+                        console.log('❌ No valid authentication data found');
+                        handleUnauthorizedAccess('No valid authentication data');
+                    }
                     
                 } catch (error) {
                     console.error('❌ Authentication check failed:', error);
@@ -864,10 +905,20 @@
                     // Double-check authentication
                     setTimeout(() => {
                         if (window.SupabaseService && window.SupabaseService.auth) {
-                            const isAuthenticated = window.SupabaseService.auth.isAuthenticated();
-                            if (!isAuthenticated) {
+                            // Check both Supabase session and localStorage
+                            const isSupabaseAuthenticated = window.SupabaseService.auth.isAuthenticated();
+                            const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                                               localStorage.getItem('userEmail') && 
+                                               localStorage.getItem('userId');
+                            
+                            console.log('🔍 Auth check - Supabase:', isSupabaseAuthenticated, 'Local:', hasLocalAuth);
+                            
+                            // If either authentication method is valid, allow access
+                            if (!isSupabaseAuthenticated && !hasLocalAuth) {
                                 console.log('❌ Direct access authentication failed, redirecting to login');
                                 handleUnauthorizedAccess('Direct access authentication failed');
+                            } else {
+                                console.log('✅ Authentication verified, allowing access');
                             }
                         }
                     }, 1000); // Small delay to ensure SupabaseService is loaded

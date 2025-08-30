@@ -113,6 +113,17 @@ async function initializeSession() {
             return true;
         } else {
             console.log('No active session found');
+            
+            // If no Supabase session but we have localStorage auth, try to recover
+            const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                               localStorage.getItem('userEmail') && 
+                               localStorage.getItem('userId');
+            
+            if (hasLocalAuth) {
+                console.log('No Supabase session but localStorage auth found, recovering...');
+                return recoverSessionFromStorage();
+            }
+            
             return false;
         }
     } catch (error) {
@@ -312,7 +323,13 @@ const auth = {
 
     // Check if user is authenticated
     isAuthenticated() {
-        return currentSession !== null && currentUser !== null;
+        // Check both Supabase session and localStorage fallback
+        const hasSupabaseSession = currentSession !== null && currentUser !== null;
+        const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                           localStorage.getItem('userEmail') && 
+                           localStorage.getItem('userId');
+        
+        return hasSupabaseSession || hasLocalAuth;
     },
 
     // Get cached user (no API call)
