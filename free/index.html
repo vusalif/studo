@@ -14,6 +14,7 @@
     <link rel="apple-touch-icon" href="../imgs/icons/512x512.png">
     <title>Studo - Study Timer</title>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="84f27685-c8d6-4759-9048-71ef2fba5e1b"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     <!-- OpenGraph Meta Tags -->
     <meta property="og:title" content="Studo Free - Study Timer">
     <meta property="og:description" content="Free study timer with session tracking, notes, and GitHub-style heatmap visualization. All data stored locally in your browser.">
@@ -72,6 +73,18 @@
             <p style="color: #666; font-size: 14px; font-family: 'IBM Plex Mono', monospace;">Study sessions will be tracked here</p>
         </div>
         
+        <!-- Pro Section -->
+        <div class="pro-section">
+            <button class="pro-button" id="proButton">
+                <span class="pro-button-text">Upgrade to Pro</span>
+                <span class="pro-button-arrow">→</span>
+            </button>
+            <div class="pro-hover-text">
+                <p>Cloud Sync • Pomodoro Mode • Full Analytics • Blurting Method • Goal Setting • Flashcards • Flashcard Analytics</p>
+                <p><strong>Only $8.99 for lifetime access</strong></p>
+            </div>
+        </div>
+        
         <div id="logContainer" class="log-container" style="display: none;">
             <div class="log-header">
                 <h3 style="margin: 0; font-family: 'IBM Plex Mono', monospace; color: white;">Study Session Log</h3>
@@ -96,6 +109,131 @@
         </div>
         
 
+    </div>
+    
+    <!-- Tutorial Overlay -->
+    <div id="tutorialOverlay" class="tutorial-overlay" style="display: none;">
+        <div class="tutorial-backdrop"></div>
+        <div class="tutorial-content">
+            <div class="tutorial-step" id="tutorialStep1" style="display: none;">
+                <div class="tutorial-header">
+                    <h2>Welcome to Studo! 🎓</h2>
+                    <p>Let's take a quick tour of your study timer</p>
+                </div>
+                <div class="tutorial-body">
+                    <p>This is your study timer. It helps you stay focused and track your study sessions.</p>
+                </div>
+                <div class="tutorial-footer">
+                    <button class="tutorial-btn tutorial-next">Get Started</button>
+                </div>
+            </div>
+            
+            <div class="tutorial-step" id="tutorialStep2" style="display: none;">
+                <div class="tutorial-header">
+                    <h2>Timer Display ⏱️</h2>
+                    <p>Click the timer to switch between modes</p>
+                </div>
+                <div class="tutorial-body">
+                    <p>The timer shows your current time. <strong>Click it</strong> to switch between:</p>
+                    <ul>
+                        <li><strong>Focus Timer</strong> - Counts down from your set time</li>
+                        <li><strong>Stopwatch</strong> - Counts up from zero</li>
+                    </ul>
+                </div>
+                <div class="tutorial-footer">
+                    <button class="tutorial-btn tutorial-prev">Back</button>
+                    <button class="tutorial-btn tutorial-next">Next</button>
+                </div>
+            </div>
+            
+            <div class="tutorial-step" id="tutorialStep3" style="display: none;">
+                <div class="tutorial-header">
+                    <h2>Settings ⚙️</h2>
+                    <p>Customize your timer experience</p>
+                </div>
+                <div class="tutorial-body">
+                    <p>Click the <strong>settings button</strong> to:</p>
+                    <ul>
+                        <li>Change between timer and stopwatch modes</li>
+                        <li>Set your focus timer duration</li>
+                        <li>Install the app for offline use</li>
+                    </ul>
+                </div>
+                <div class="tutorial-footer">
+                    <button class="tutorial-btn tutorial-prev">Back</button>
+                    <button class="tutorial-btn tutorial-next">Next</button>
+                </div>
+            </div>
+            
+            <div class="tutorial-step" id="tutorialStep4" style="display: none;">
+                <div class="tutorial-header">
+                    <h2>Timer Controls ▶️</h2>
+                    <p>Start, pause, and stop your study sessions</p>
+                </div>
+                <div class="tutorial-body">
+                    <p>Use these controls to manage your study time:</p>
+                    <ul>
+                        <li><strong>Play button</strong> - Start your timer</li>
+                        <li><strong>Pause button</strong> - Pause and resume</li>
+                        <li><strong>Stop button</strong> - End your session</li>
+                    </ul>
+                    <p><em>Tip: Use keyboard shortcuts! Press Enter or S to start, P to pause, F to stop.</em></p>
+                </div>
+                <div class="tutorial-footer">
+                    <button class="tutorial-btn tutorial-prev">Back</button>
+                    <button class="tutorial-btn tutorial-next">Next</button>
+                </div>
+            </div>
+            
+            <div class="tutorial-step" id="tutorialStep5" style="display: none;">
+                <div class="tutorial-header">
+                    <h2>Session Tracking 📊</h2>
+                    <p>View your study progress and history</p>
+                </div>
+                <div class="tutorial-body">
+                    <p>Click the <strong>documents button</strong> to see:</p>
+                    <ul>
+                        <li>Your study session history</li>
+                        <li>Total study time</li>
+                        <li>Edit or delete sessions</li>
+                    </ul>
+                    <p>The heatmap below shows your study activity over time - just like GitHub!</p>
+                </div>
+                <div class="tutorial-footer">
+                    <button class="tutorial-btn tutorial-prev">Back</button>
+                    <button class="tutorial-btn tutorial-finish">Start Studying!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Particles Container -->
+    <div id="tsparticles" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none;"></div>
+    
+    <!-- Milestone Congratulations Modal -->
+    <div id="milestoneModal" class="milestone-modal" style="display: none;">
+        <div class="milestone-content">
+            <div class="milestone-header">
+                <h2>🎉 Congratulations!</h2>
+                <div class="milestone-achievement">
+                    <span class="milestone-number" id="milestoneNumber">0</span>
+                    <span class="milestone-text">Study Sessions Completed!</span>
+                </div>
+            </div>
+            <div class="milestone-body">
+                <div class="milestone-gif-container">
+                    <img id="milestoneGif" class="milestone-gif" src="" alt="Milestone celebration" style="display: none;">
+                </div>
+                <p id="milestoneMessage">You've reached an amazing milestone!</p>
+                <div class="milestone-badge" id="milestoneBadge">
+                    <span class="badge-icon">🏆</span>
+                    <span class="badge-text">Milestone Achiever</span>
+                </div>
+            </div>
+            <div class="milestone-footer">
+                <button class="milestone-close-btn" id="milestoneCloseBtn">Awesome!</button>
+            </div>
+        </div>
     </div>
     
     <!-- Settings Modal -->
@@ -132,18 +270,7 @@
                     <button id="saveSettings" style="font-family: 'IBM Plex Mono', monospace; padding: 10px 20px; background: #666; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 20px;">Save Settings</button>
                 </div>
                 
-                <div class="setting-group" id="installAppGroup" style="display: none;">
-                    <label style="font-family: 'IBM Plex Mono', monospace; color: white; display: block; margin-bottom: 10px;">Install App:</label>
-                    <button id="installAppBtn" style="font-family: 'IBM Plex Mono', monospace; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
-                        📱 Install Studo App
-                    </button>
-                    <p style="font-family: 'IBM Plex Mono', monospace; color: #ccc; font-size: 12px; margin-top: 8px; text-align: center;">
-                        Install for offline use and quick access
-                    </p>
-                    <p id="localhostNotice" style="font-family: 'IBM Plex Mono', monospace; color: #ff6b6b; font-size: 11px; margin-top: 8px; text-align: center; display: none;">
-                        ⚠️ PWA features disabled on localhost
-                    </p>
-                </div>
+                
             </div>
         </div>
     </div>

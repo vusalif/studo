@@ -123,8 +123,7 @@ body {
 }
 
 .refresh-btn:active {
-    transform: translateY(0) !important;
-}
+    transform: translateY(0) !important;    
     pointer-events: none;
     transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     position: absolute;
@@ -559,5 +558,679 @@ input, button, textarea {
     overflow-y: auto;
 }
 
+/* Tutorial Overlay Styles */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: tutorialFadeIn 0.5s ease-out;
+}
 
+.tutorial-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    animation: backdropFadeIn 0.5s ease-out;
+}
+
+.tutorial-content {
+    position: relative;
+    z-index: 10;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    animation: tutorialSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.tutorial-step {
+    padding: 0;
+    animation: stepFadeIn 0.4s ease-out;
+}
+
+.tutorial-header {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    padding: 30px 30px 20px;
+    border-bottom: 1px solid #333;
+    text-align: center;
+}
+
+.tutorial-header h2 {
+    margin: 0 0 10px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 24px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.tutorial-header p {
+    margin: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    color: #ccc;
+    font-weight: 400;
+}
+
+.tutorial-body {
+    padding: 30px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e0e0e0;
+}
+
+.tutorial-body p {
+    margin: 0 0 15px 0;
+}
+
+.tutorial-body ul {
+    margin: 15px 0;
+    padding-left: 20px;
+}
+
+.tutorial-body li {
+    margin: 8px 0;
+    color: #ccc;
+}
+
+.tutorial-body strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.tutorial-body em {
+    color: #888;
+    font-style: italic;
+}
+
+.tutorial-footer {
+    padding: 20px 30px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    background: #222;
+    border-top: 1px solid #333;
+}
+
+.tutorial-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+}
+
+.tutorial-next, .tutorial-finish {
+    background: #4CAF50;
+    color: white;
+    margin-left: auto;
+}
+
+.tutorial-next:hover, .tutorial-finish:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.tutorial-prev {
+    background: #666;
+    color: white;
+}
+
+.tutorial-prev:hover {
+    background: #777;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3);
+}
+
+.tutorial-finish {
+    background: #2196F3;
+}
+
+.tutorial-finish:hover {
+    background: #1976D2;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+/* Tutorial Animations */
+@keyframes tutorialFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes backdropFadeIn {
+    from {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+    to {
+        opacity: 1;
+        backdrop-filter: blur(8px);
+    }
+}
+
+@keyframes tutorialSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes stepFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Tutorial step transitions */
+.tutorial-step.tutorial-exit {
+    animation: stepFadeOut 0.3s ease-in forwards;
+}
+
+@keyframes stepFadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+}
+
+/* Responsive tutorial */
+@media (max-width: 600px) {
+    .tutorial-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .tutorial-header {
+        padding: 25px 20px 15px;
+    }
+    
+    .tutorial-header h2 {
+        font-size: 20px;
+    }
+    
+    .tutorial-body {
+        padding: 25px 20px;
+    }
+    
+    .tutorial-footer {
+        padding: 15px 20px 25px;
+        flex-direction: column;
+    }
+    
+    .tutorial-btn {
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .tutorial-next, .tutorial-finish {
+        margin-left: 0;
+    }
+}
+
+/* Tutorial highlighting and animations */
+.tutorial-highlight {
+    position: relative !important;
+    z-index: 1000 !important;
+}
+
+@keyframes tutorialPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(33, 150, 243, 0.3);
+        transform: scale(1.05);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
+        transform: scale(1);
+    }
+}
+
+@keyframes tutorialTooltipFade {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes tutorialFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Tutorial active state for body */
+body.tutorial-active {
+    overflow: hidden;
+}
+
+body.tutorial-active .container {
+    filter: blur(2px);
+    opacity: 0.3;
+    transition: all 0.3s ease;
+}
+
+/* Milestone Modal Styles */
+.milestone-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: milestoneFadeIn 0.5s ease-out;
+}
+
+.milestone-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid #4CAF50;
+    border-radius: 20px;
+    padding: 0;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    animation: milestoneSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+}
+
+.milestone-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800, #E91E63);
+    animation: milestoneGradient 2s ease-in-out infinite;
+}
+
+.milestone-header {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    padding: 30px 30px 20px;
+    text-align: center;
+    position: relative;
+}
+
+.milestone-header h2 {
+    margin: 0 0 20px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 28px;
+    color: white;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.milestone-achievement {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.milestone-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 48px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+    animation: milestonePulse 1s ease-in-out infinite;
+}
+
+.milestone-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+}
+
+.milestone-body {
+    padding: 30px;
+    text-align: center;
+}
+
+.milestone-gif-container {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.milestone-gif {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: milestoneGifBounce 0.6s ease-out;
+}
+
+@keyframes milestoneGifBounce {
+    0% {
+        transform: scale(0.3) rotate(-10deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1) rotate(5deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.milestone-body p {
+    margin: 0 0 25px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 16px;
+    color: #e0e0e0;
+    line-height: 1.5;
+}
+
+.milestone-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(76, 175, 80, 0.1);
+    border: 2px solid rgba(76, 175, 80, 0.3);
+    border-radius: 25px;
+    padding: 12px 20px;
+    margin: 0 auto;
+}
+
+.badge-icon {
+    font-size: 24px;
+    animation: badgeBounce 2s ease-in-out infinite;
+}
+
+.badge-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4CAF50;
+}
+
+.milestone-footer {
+    padding: 20px 30px 30px;
+    text-align: center;
+}
+
+.milestone-close-btn {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 30px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    min-width: 150px;
+}
+
+.milestone-close-btn:hover {
+    background: linear-gradient(135deg, #45a049, #4CAF50);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.milestone-close-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+}
+
+/* Milestone Animations */
+@keyframes milestoneFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes milestoneSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes milestoneGradient {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+@keyframes milestonePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes badgeBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Responsive milestone modal */
+@media (max-width: 600px) {
+    .milestone-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .milestone-header {
+        padding: 25px 20px 15px;
+    }
+    
+    .milestone-header h2 {
+        font-size: 24px;
+    }
+    
+    .milestone-number {
+        font-size: 40px;
+    }
+    
+    .milestone-body {
+        padding: 25px 20px;
+    }
+    
+    .milestone-footer {
+        padding: 15px 20px 25px;
+    }
+}
+
+/* Pro Section Styles */
+.pro-section {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    gap: 15px;
+}
+
+@keyframes proGradient {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+
+
+/* Pro Hover Text */
+.pro-hover-text {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    text-align: center;
+    max-width: 600px;
+}
+
+.pro-hover-text p {
+    margin: 5px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: #ccc;
+    line-height: 1.4;
+}
+
+.pro-hover-text strong {
+    color: #4CAF50;
+}
+
+/* Show hover text on button hover */
+.pro-button:hover + .pro-hover-text {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Pro Button */
+.pro-button {
+    background: #333333;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.pro-button::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800, #E91E63);
+    border-radius: 8px 8px 0 0;
+    animation: proGradient 3s ease-in-out infinite;
+}
+
+.pro-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.pro-button:hover::after {
+    left: 100%;
+}
+
+.pro-button:hover {
+    background: #1a1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.pro-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.pro-button-text {
+    position: relative;
+    z-index: 1;
+}
+
+.pro-button-arrow {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.pro-button:hover .pro-button-arrow {
+    transform: translateX(3px);
+}
+
+/* Responsive Pro Section */
+@media (max-width: 600px) {
+    .pro-tooltip {
+        width: 300px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .pro-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .pro-tooltip-content {
+        padding: 15px;
+    }
+    
+    .pro-tooltip-content li {
+        font-size: 12px;
+    }
+}
 

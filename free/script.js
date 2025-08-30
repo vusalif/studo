@@ -64,6 +64,15 @@ class StudyTimer {
         // Set up keyboard shortcuts
         this.setupKeyboardShortcuts();
         
+        // Set up tutorial system
+        this.setupTutorial();
+        
+        // Set up Pro section
+        this.setupProSection();
+        
+        // Set up milestone system
+        this.setupMilestoneSystem();
+        
         console.log('✅ StudyTimer initialized successfully');
         console.log('⏱️ Timer mode:', this.timerMode);
         console.log('⏰ Time left:', this.timeLeft, 'seconds');
@@ -1104,6 +1113,9 @@ class StudyTimer {
         // Save to localStorage
         await this.saveStudySessions();
         
+        // Check for milestones
+        this.checkMilestones();
+        
         // Update display
         this.updateStudyDisplay();
         this.updateLogDisplay();
@@ -1337,6 +1349,20 @@ class StudyTimer {
                     this.showShortcutsHelp();
                     break;
                     
+                case 't':
+                    // Restart tutorial (T) - for testing
+                    event.preventDefault();
+                    console.log('⌨️ Shortcut: Restart tutorial (T)');
+                    this.restartTutorial();
+                    break;
+                    
+                case 'c':
+                    // Test milestone celebration (C) - for testing
+                    event.preventDefault();
+                    console.log('⌨️ Shortcut: Test milestone celebration (C)');
+                    this.testMilestone();
+                    break;
+                    
                 default:
                     // Check for hack mode activation
                     this.checkHackMode(key);
@@ -1349,17 +1375,18 @@ class StudyTimer {
         console.log('  P - Pause/Resume timer');
         console.log('  F - Stop timer');
         console.log('  Q - Open settings');
-
         console.log('  M - Toggle log/documents');
         console.log('  Escape - Close modals');
         console.log('  H - Show shortcuts help');
+        console.log('  T - Restart tutorial');
+        console.log('  C - Test milestone celebration');
         
         // Test keyboard shortcuts on localhost
         if (window.location.hostname === 'localhost' || 
             window.location.hostname === '127.0.0.1' || 
             window.location.hostname === '0.0.0.0') {
             console.log('🔧 Localhost detected - testing shortcuts...');
-            console.log('🎯 Try pressing: Enter, S, P, F, Q, M, Escape, H');
+            console.log('🎯 Try pressing: Enter, S, P, F, Q, M, Escape, H, T, C');
         }
     }
     
@@ -1428,6 +1455,10 @@ class StudyTimer {
                         <div class="shortcut-item">
                             <kbd>H</kbd>
                             <span>Show this help</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>T</kbd>
+                            <span>Restart tutorial</span>
                         </div>
                     </div>
 
@@ -1585,6 +1616,597 @@ class StudyTimer {
         if (minutes !== null && !isNaN(minutes) && minutes > 0) {
             this.addHackSession(date, parseInt(minutes));
         }
+    }
+    
+    // Tutorial System Methods
+    setupTutorial() {
+        this.tutorialOverlay = document.getElementById('tutorialOverlay');
+        this.currentTutorialStep = 1;
+        this.totalTutorialSteps = 5;
+        
+        // Check if this is a first-time user
+        this.checkFirstTimeUser();
+        
+        // Set up tutorial event listeners
+        this.setupTutorialEventListeners();
+        
+        console.log('🎓 Tutorial system initialized');
+    }
+    
+    checkFirstTimeUser() {
+        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+        const hasStudySessions = this.studySessions.length > 0;
+        
+        // Show tutorial if user hasn't seen it and has no study sessions
+        if (!hasSeenTutorial && !hasStudySessions) {
+            console.log('🎓 First-time user detected - showing tutorial');
+            // Add a small delay to ensure the page is fully loaded
+            setTimeout(() => {
+                this.showTutorial();
+            }, 1000);
+        } else {
+            console.log('🎓 Returning user - skipping tutorial');
+        }
+    }
+    
+    setupTutorialEventListeners() {
+        // Tutorial button event listeners
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('tutorial-next')) {
+                this.nextTutorialStep();
+            } else if (event.target.classList.contains('tutorial-prev')) {
+                this.prevTutorialStep();
+            } else if (event.target.classList.contains('tutorial-finish')) {
+                this.finishTutorial();
+            }
+        });
+        
+        // Close tutorial on backdrop click
+        if (this.tutorialOverlay) {
+            this.tutorialOverlay.addEventListener('click', (event) => {
+                if (event.target === this.tutorialOverlay || event.target.classList.contains('tutorial-backdrop')) {
+                    this.finishTutorial();
+                }
+            });
+        }
+    }
+    
+    showTutorial() {
+        if (!this.tutorialOverlay) return;
+        
+        this.tutorialOverlay.style.display = 'flex';
+        this.currentTutorialStep = 1;
+        this.showTutorialStep(1);
+        
+        // Add blackout effect to the main content
+        document.body.classList.add('tutorial-active');
+        
+        console.log('🎓 Tutorial started');
+    }
+    
+    showTutorialStep(stepNumber) {
+        // Hide all tutorial steps
+        for (let i = 1; i <= this.totalTutorialSteps; i++) {
+            const step = document.getElementById(`tutorialStep${i}`);
+            if (step) {
+                step.style.display = 'none';
+            }
+        }
+        
+        // Show the current step
+        const currentStep = document.getElementById(`tutorialStep${stepNumber}`);
+        if (currentStep) {
+            currentStep.style.display = 'block';
+        }
+        
+        // Add visual highlighting for specific elements based on step
+        this.highlightTutorialElement(stepNumber);
+    }
+    
+    highlightTutorialElement(stepNumber) {
+        // Remove any existing highlights
+        this.removeTutorialHighlights();
+        
+        switch (stepNumber) {
+            case 2:
+                // Highlight timer display
+                this.addTutorialHighlight(this.timerDisplay, 'Click me to switch between timer and stopwatch modes!');
+                break;
+            case 3:
+                // Highlight settings button
+                this.addTutorialHighlight(this.settingsBtn, 'Click here to access settings and change timer modes!');
+                break;
+            case 4:
+                // Highlight play button
+                this.addTutorialHighlight(this.playBtn, 'Click here to start your study session!');
+                break;
+            case 5:
+                // Highlight log button
+                this.addTutorialHighlight(this.logBtn, 'Click here to view your study history and progress!');
+                break;
+        }
+    }
+    
+    addTutorialHighlight(element, tooltip) {
+        if (!element) return;
+        
+        element.classList.add('tutorial-highlight');
+        element.style.position = 'relative';
+        element.style.zIndex = '1000';
+        
+        // Add pulsing animation
+        element.style.animation = 'tutorialPulse 2s infinite';
+        
+        // Add tooltip
+        const tooltipEl = document.createElement('div');
+        tooltipEl.className = 'tutorial-tooltip';
+        tooltipEl.textContent = tooltip;
+        tooltipEl.style.cssText = `
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2196F3;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+            animation: tutorialTooltipFade 0.3s ease-out;
+        `;
+        
+        element.appendChild(tooltipEl);
+    }
+    
+    removeTutorialHighlights() {
+        const highlightedElements = document.querySelectorAll('.tutorial-highlight');
+        highlightedElements.forEach(element => {
+            element.classList.remove('tutorial-highlight');
+            element.style.animation = '';
+            element.style.position = '';
+            element.style.zIndex = '';
+            
+            // Remove tooltip
+            const tooltip = element.querySelector('.tutorial-tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+        });
+    }
+    
+    nextTutorialStep() {
+        if (this.currentTutorialStep < this.totalTutorialSteps) {
+            this.currentTutorialStep++;
+            this.showTutorialStep(this.currentTutorialStep);
+            console.log(`🎓 Tutorial step ${this.currentTutorialStep}`);
+        }
+    }
+    
+    prevTutorialStep() {
+        if (this.currentTutorialStep > 1) {
+            this.currentTutorialStep--;
+            this.showTutorialStep(this.currentTutorialStep);
+            console.log(`🎓 Tutorial step ${this.currentTutorialStep}`);
+        }
+    }
+    
+    finishTutorial() {
+        if (!this.tutorialOverlay) return;
+        
+        // Mark tutorial as completed
+        localStorage.setItem('hasSeenTutorial', 'true');
+        
+        // Remove highlights
+        this.removeTutorialHighlights();
+        
+        // Remove blackout effect
+        document.body.classList.remove('tutorial-active');
+        
+        // Hide tutorial overlay with fade out animation
+        this.tutorialOverlay.style.animation = 'tutorialFadeOut 0.5s ease-in forwards';
+        
+        setTimeout(() => {
+            this.tutorialOverlay.style.display = 'none';
+            this.tutorialOverlay.style.animation = '';
+        }, 500);
+        
+        console.log('🎓 Tutorial completed');
+    }
+    
+    // Method to manually restart tutorial (for testing or user request)
+    restartTutorial() {
+        localStorage.removeItem('hasSeenTutorial');
+        this.showTutorial();
+    }
+    
+    // Pro Section Methods
+    setupProSection() {
+        this.proButton = document.getElementById('proButton');
+        this.proTooltip = document.getElementById('proTooltip');
+        
+        if (this.proButton) {
+            this.proButton.addEventListener('click', () => this.handleProUpgrade());
+        }
+        
+        // Add analytics tracking for Pro section interactions
+        this.trackProInteractions();
+        
+        console.log('💎 Pro section initialized');
+    }
+    
+    handleProUpgrade() {
+        // Track the upgrade click
+        this.trackProClick();
+        
+        // Open Gumroad page in new tab
+        const gumroadUrl = 'https://vusalmran.gumroad.com/l/prostudo';
+        window.open(gumroadUrl, '_blank', 'noopener,noreferrer');
+        
+        console.log('💎 Pro upgrade clicked - redirecting to Gumroad');
+    }
+    
+    trackProInteractions() {
+        // Track when user hovers over Pro button
+        if (this.proButton) {
+            this.proButton.addEventListener('mouseenter', () => {
+                console.log('💎 Pro button hovered');
+                // You can add analytics tracking here
+            });
+        }
+        
+        // Track when user hovers over Pro tooltip
+        if (this.proTooltip) {
+            this.proTooltip.addEventListener('mouseenter', () => {
+                console.log('💎 Pro tooltip viewed');
+                // You can add analytics tracking here
+            });
+        }
+    }
+    
+    trackProClick() {
+        // Track Pro button clicks for analytics
+        const clickData = {
+            timestamp: new Date().toISOString(),
+            source: 'free_version',
+            action: 'pro_upgrade_click'
+        };
+        
+        // Store in localStorage for analytics (you can send this to your analytics service)
+        const existingClicks = JSON.parse(localStorage.getItem('proClicks') || '[]');
+        existingClicks.push(clickData);
+        localStorage.setItem('proClicks', JSON.stringify(existingClicks));
+        
+        console.log('💎 Pro click tracked:', clickData);
+    }
+    
+    // Milestone System Methods
+    setupMilestoneSystem() {
+        this.milestoneModal = document.getElementById('milestoneModal');
+        this.milestoneNumber = document.getElementById('milestoneNumber');
+        this.milestoneMessage = document.getElementById('milestoneMessage');
+        this.milestoneBadge = document.getElementById('milestoneBadge');
+        this.milestoneCloseBtn = document.getElementById('milestoneCloseBtn');
+        this.milestoneGif = document.getElementById('milestoneGif');
+        
+        // Milestone thresholds
+        this.milestones = [1, 10, 30, 50, 100, 500, 1000];
+        this.celebratedMilestones = JSON.parse(localStorage.getItem('celebratedMilestones') || '[]');
+        
+        // Milestone GIFs
+        this.milestoneGifs = {
+            1: 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExMGpmZTRyN2R2ZTFkOWkzNGZreWdldWJ5djg5eG5lZG1lNzF2cWtjdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/U1ZG5CxukCD8nbLBdB/giphy.gif',
+            10: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3p2c2x4d2l0dzJ2bmNweHpzNWpya3cyZTc4MWM2cTBtbWlwY25vMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/EBPvJ8wA04Kc0/giphy.gif',
+            30: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaHVlazg3N2M5Y2VkZ25ydnBmam1zNWZieGp3NmVydGNtMnBhcHkxYSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8mdNeetff8NC9nwJ1X/giphy.gif',
+            50: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGg1OXdxcXJlOTM4bHA2eWhoZ2ZtNTQxbzR3ZzdhZ3dyNHM3MWJ0dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/IyBGaXEt4GIccMervv/giphy.gif',
+            100: 'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGpwaXJtZmk5ZTFzNjZwbTgweGo0Z285dGxidXZ4MGRza2cyeGtxNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/AhgQdQqF0nwPiZkGPc/giphy.gif',
+            500: 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3ZuZ2w4bWphc2ExdHRrZHJoaXk0aTVhanM5YnV4NDU4cHJ3Y3FpZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/39MEs3YcNj5D2/giphy.gif',
+            1000: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ2JmMXBkcXBzY2RjaXhycG5pOGNpYzF3bmdzMG94ODh6NW80cGp0ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wyOuDJ2bJoEnu/giphy.gif'
+        };
+        
+        // Set up event listeners
+        if (this.milestoneCloseBtn) {
+            this.milestoneCloseBtn.addEventListener('click', () => this.closeMilestoneModal());
+        }
+        
+        // Close modal on backdrop click
+        if (this.milestoneModal) {
+            this.milestoneModal.addEventListener('click', (event) => {
+                if (event.target === this.milestoneModal) {
+                    this.closeMilestoneModal();
+                }
+            });
+        }
+        
+        // Initialize particles
+        this.initializeParticles();
+        
+        console.log('🎯 Milestone system initialized');
+    }
+    
+    async initializeParticles() {
+        if (typeof tsParticles !== 'undefined') {
+            try {
+                this.particlesEngine = await tsParticles.load("tsparticles", {
+                    "fullScreen": {
+                        "zIndex": 1
+                    },
+                    "particles": {
+                        "number": {
+                            "value": 0
+                        },
+                        "color": {
+                            "value": [
+                                "#00FFFC",
+                                "#FC00FF",
+                                "#fffc00"
+                            ]
+                        },
+                        "shape": {
+                            "type": [
+                                "circle",
+                                "square"
+                            ],
+                            "options": {}
+                        },
+                        "opacity": {
+                            "value": {
+                                "min": 0,
+                                "max": 1
+                            },
+                            "animation": {
+                                "enable": true,
+                                "speed": 2,
+                                "startValue": "max",
+                                "destroy": "min"
+                            }
+                        },
+                        "size": {
+                            "value": {
+                                "min": 2,
+                                "max": 4
+                            }
+                        },
+                        "links": {
+                            "enable": false
+                        },
+                        "life": {
+                            "duration": {
+                                "sync": true,
+                                "value": 5
+                            },
+                            "count": 1
+                        },
+                        "move": {
+                            "enable": true,
+                            "gravity": {
+                                "enable": true,
+                                "acceleration": 10
+                            },
+                            "speed": {
+                                "min": 10,
+                                "max": 20
+                            },
+                            "decay": 0.1,
+                            "direction": "none",
+                            "straight": false,
+                            "outModes": {
+                                "default": "destroy",
+                                "top": "none"
+                            }
+                        },
+                        "rotate": {
+                            "value": {
+                                "min": 0,
+                                "max": 360
+                            },
+                            "direction": "random",
+                            "move": true,
+                            "animation": {
+                                "enable": true,
+                                "speed": 60
+                            }
+                        },
+                        "tilt": {
+                            "direction": "random",
+                            "enable": true,
+                            "move": true,
+                            "value": {
+                                "min": 0,
+                                "max": 360
+                            },
+                            "animation": {
+                                "enable": true,
+                                "speed": 60
+                            }
+                        },
+                        "roll": {
+                            "darken": {
+                                "enable": true,
+                                "value": 25
+                            },
+                            "enable": true,
+                            "speed": {
+                                "min": 15,
+                                "max": 25
+                            }
+                        },
+                        "wobble": {
+                            "distance": 30,
+                            "enable": true,
+                            "move": true,
+                            "speed": {
+                                "min": -15,
+                                "max": 15
+                            }
+                        }
+                    },
+                    "emitters": {
+                        "life": {
+                            "count": 0,
+                            "duration": 0.1,
+                            "delay": 0.4
+                        },
+                        "rate": {
+                            "delay": 0.1,
+                            "quantity": 150
+                        },
+                        "size": {
+                            "width": 0,
+                            "height": 0
+                        }
+                    }
+                });
+                console.log('🎆 Particles system initialized successfully');
+            } catch (error) {
+                console.error('❌ Failed to initialize particles:', error);
+                this.particlesEngine = null;
+            }
+        } else {
+            console.log('⚠️ tsParticles library not loaded');
+            this.particlesEngine = null;
+        }
+    }
+    
+    checkMilestones() {
+        const totalSessions = this.studySessions.length;
+        console.log('🎯 Checking milestones - Total sessions:', totalSessions);
+        console.log('🎯 Celebrated milestones:', this.celebratedMilestones);
+        
+        // Check if we've reached any new milestones
+        for (const milestone of this.milestones) {
+            console.log(`🎯 Checking milestone ${milestone}: sessions=${totalSessions}, celebrated=${this.celebratedMilestones.includes(milestone)}`);
+            if (totalSessions >= milestone && !this.celebratedMilestones.includes(milestone)) {
+                console.log(`🎉 Milestone ${milestone} reached! Celebrating...`);
+                this.celebrateMilestone(milestone);
+                this.celebratedMilestones.push(milestone);
+                localStorage.setItem('celebratedMilestones', JSON.stringify(this.celebratedMilestones));
+                break; // Only celebrate one milestone at a time
+            }
+        }
+    }
+    
+    celebrateMilestone(milestone) {
+        console.log(`🎉 Milestone reached: ${milestone} sessions!`);
+        
+        // Trigger particles
+        this.triggerParticles();
+        
+        // Show milestone modal
+        this.showMilestoneModal(milestone);
+    }
+    
+    triggerParticles() {
+        const particlesContainer = document.getElementById('tsparticles');
+        if (!particlesContainer) return;
+        
+        // Show particles container
+        particlesContainer.style.display = 'block';
+        
+        if (this.particlesEngine) {
+            try {
+                // Start the particles animation
+                this.particlesEngine.play();
+                console.log('🎆 Particles triggered!');
+                
+                // Hide particles after animation completes
+                setTimeout(() => {
+                    particlesContainer.style.display = 'none';
+                    if (this.particlesEngine && this.particlesEngine.pause) {
+                        this.particlesEngine.pause();
+                    }
+                }, 5000); // Hide after 5 seconds
+            } catch (error) {
+                console.error('❌ Error triggering particles:', error);
+                particlesContainer.style.display = 'none';
+            }
+        } else {
+            console.log('⚠️ Particles engine not initialized');
+            particlesContainer.style.display = 'none';
+        }
+    }
+    
+    showMilestoneModal(milestone) {
+        if (!this.milestoneModal) return;
+        
+        // Update modal content based on milestone
+        this.milestoneNumber.textContent = milestone;
+        
+        const messages = {
+            1: "You've completed your first study session! 🎉",
+            10: "Amazing! You're building a great study habit! 📚",
+            30: "Incredible dedication! You're on fire! 🔥",
+            50: "Outstanding! You're a study champion! 🏆",
+            100: "Phenomenal! You're a study master! 👑",
+            500: "Legendary! You're a study legend! ⭐",
+            1000: "Unbelievable! You're a study god! 🌟"
+        };
+        
+        const badges = {
+            1: { icon: "🌱", text: "First Steps" },
+            10: { icon: "📖", text: "Study Beginner" },
+            30: { icon: "🔥", text: "Study Enthusiast" },
+            50: { icon: "🏆", text: "Study Champion" },
+            100: { icon: "👑", text: "Study Master" },
+            500: { icon: "⭐", text: "Study Legend" },
+            1000: { icon: "🌟", text: "Study God" }
+        };
+        
+        this.milestoneMessage.textContent = messages[milestone] || "You've reached an amazing milestone!";
+        
+        const badge = badges[milestone] || { icon: "🏆", text: "Milestone Achiever" };
+        this.milestoneBadge.innerHTML = `
+            <span class="badge-icon">${badge.icon}</span>
+            <span class="badge-text">${badge.text}</span>
+        `;
+        
+        // Set GIF if available
+        if (this.milestoneGif && this.milestoneGifs[milestone]) {
+            this.milestoneGif.src = this.milestoneGifs[milestone];
+            this.milestoneGif.style.display = 'block';
+            console.log('🎬 GIF loaded for milestone:', milestone);
+        } else if (this.milestoneGif) {
+            this.milestoneGif.style.display = 'none';
+        }
+        
+        // Show modal
+        this.milestoneModal.style.display = 'flex';
+        
+        // Auto-close after 5 seconds
+        setTimeout(() => {
+            this.closeMilestoneModal();
+        }, 5000);
+    }
+    
+    closeMilestoneModal() {
+        if (this.milestoneModal) {
+            this.milestoneModal.style.display = 'none';
+        }
+        
+        // Hide GIF
+        if (this.milestoneGif) {
+            this.milestoneGif.style.display = 'none';
+            this.milestoneGif.src = '';
+        }
+        
+        // Hide particles when modal is closed
+        const particlesContainer = document.getElementById('tsparticles');
+        if (particlesContainer) {
+            particlesContainer.style.display = 'none';
+        }
+        
+        // Pause particles
+        if (this.particlesEngine && this.particlesEngine.pause) {
+            this.particlesEngine.pause();
+        }
+    }
+    
+    // Test function to manually trigger milestone celebration
+    testMilestone() {
+        console.log('🧪 Testing milestone celebration...');
+        this.celebrateMilestone(1);
     }
 }
 
