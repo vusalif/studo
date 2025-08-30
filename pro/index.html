@@ -480,13 +480,40 @@
                     return;
                 }
                 
+                // Check if we just came from login (recent login)
+                const loginTimestamp = localStorage.getItem('loginTimestamp');
+                const now = Date.now();
+                const isRecentLogin = loginTimestamp && (now - parseInt(loginTimestamp)) < 30000; // 30 seconds
+                
+                if (isRecentLogin) {
+                    console.log('✅ Recent login detected, showing main content immediately');
+                    showMainContent();
+                    return;
+                }
+                
+                // Check if Supabase service is available
+                if (!window.SupabaseService) {
+                    console.log('⚠️ SupabaseService not available, using localStorage fallback');
+                    showMainContent();
+                    return;
+                }
+                
                 try {
                     // Try to get current Supabase session
                     if (window.SupabaseService && window.SupabaseService.supabase) {
                         console.log('🔍 Checking Supabase session...');
                         
-                        // Try to initialize session
-                        await window.SupabaseService.initializeSession();
+                        // Try to initialize session with timeout
+                        const initPromise = window.SupabaseService.initializeSession();
+                        const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Session initialization timeout')), 5000)
+                        );
+                        
+                        try {
+                            await Promise.race([initPromise, timeoutPromise]);
+                        } catch (initError) {
+                            console.log('⚠️ Session initialization failed or timed out:', initError.message);
+                        }
                         
                         // Get current session
                         const session = await window.SupabaseService.getCurrentSession();
@@ -499,12 +526,21 @@
                         } else {
                             console.log('⚠️ No valid Supabase session, trying to refresh...');
                             
-                            // Try to refresh session
-                            const refreshed = await window.SupabaseService.refreshSession();
-                            if (refreshed) {
-                                console.log('✅ Session refreshed successfully');
-                                showMainContent();
-                                return;
+                            // Try to refresh session with timeout
+                            try {
+                                const refreshPromise = window.SupabaseService.refreshSession();
+                                const refreshTimeout = new Promise((_, reject) => 
+                                    setTimeout(() => reject(new Error('Session refresh timeout')), 3000)
+                                );
+                                
+                                const refreshed = await Promise.race([refreshPromise, refreshTimeout]);
+                                if (refreshed) {
+                                    console.log('✅ Session refreshed successfully');
+                                    showMainContent();
+                                    return;
+                                }
+                            } catch (refreshError) {
+                                console.log('⚠️ Session refresh failed:', refreshError.message);
                             }
                             
                             // Try to recover from storage
@@ -517,7 +553,7 @@
                         }
                     }
                     
-                    // Fallback: use localStorage data if Supabase is not available
+                    // Fallback: use localStorage data if Supabase is not available or fails
                     console.log('⚠️ Using localStorage fallback');
                     showMainContent();
                     
@@ -534,7 +570,17 @@
                         }
                     }
                     
-                    handleUnauthorizedAccess('Authentication check failed');
+                    // Only redirect to login if we have no valid authentication data at all
+                    const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                                       localStorage.getItem('userEmail') && 
+                                       localStorage.getItem('userId');
+                    
+                    if (!hasLocalAuth) {
+                        handleUnauthorizedAccess('Authentication check failed');
+                    } else {
+                        console.log('⚠️ Using localStorage fallback after error');
+                        showMainContent();
+                    }
                 }
             }
             
@@ -567,10 +613,27 @@
             
             function handleUnauthorizedAccess(reason) {
                 console.log('🚫 Unauthorized access:', reason);
-                alert(`Access denied: ${reason}\nPlease log in again.`);
+                
+                // Clear all authentication data
                 localStorage.clear();
                 sessionStorage.clear();
-                window.location.href = 'login.html';
+                
+                // Show a brief message and redirect without blocking alert
+                const loadingScreen = document.getElementById('authLoadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.innerHTML = `
+                        <div style="text-align: center; color: white; font-family: 'IBM Plex Mono', monospace;">
+                            <div style="font-size: 2rem; margin-bottom: 20px;">🔐</div>
+                            <div style="font-size: 1.2rem; margin-bottom: 10px;">Authentication Required</div>
+                            <div style="font-size: 0.9rem; color: #888;">Redirecting to login...</div>
+                        </div>
+                    `;
+                }
+                
+                // Redirect after a short delay to allow the message to show
+                setTimeout(() => {
+                    window.location.href = './login.html';
+                }, 1000);
             }
             
             // Timer mode change handler for Pomodoro functionality
@@ -677,8 +740,37 @@
                 handleTimerModeChange();
             });
             
-            // Run authentication check
-            checkAuthentication();
+            // Run authentication check with timeout
+            const authTimeout = setTimeout(() => {
+                console.log('⚠️ Authentication check timed out, using localStorage fallback');
+                const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                                   localStorage.getItem('userEmail') && 
+                                   localStorage.getItem('userId');
+                
+                if (hasLocalAuth) {
+                    showMainContent();
+                } else {
+                    handleUnauthorizedAccess('Authentication check timed out');
+                }
+            }, 10000); // 10 second timeout
+            
+            checkAuthentication().then(() => {
+                clearTimeout(authTimeout);
+            }).catch((error) => {
+                clearTimeout(authTimeout);
+                console.error('Authentication check failed:', error);
+                
+                // Fallback to localStorage if available
+                const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                                   localStorage.getItem('userEmail') && 
+                                   localStorage.getItem('userId');
+                
+                if (hasLocalAuth) {
+                    showMainContent();
+                } else {
+                    handleUnauthorizedAccess('Authentication check failed');
+                }
+            });
             
             // Set up periodic authentication checks (every 5 minutes)
             setInterval(() => {
@@ -736,12 +828,12 @@
                     console.log('✅ Logout successful, redirecting to login');
                     
                     // Redirect to login
-                    window.location.href = 'login.html';
+                    window.location.href = './login.html';
                 } catch (error) {
                     console.error('❌ Logout error:', error);
                     // Force redirect even if Supabase logout fails
                     localStorage.clear();
-                    window.location.href = 'login.html';
+                    window.location.href = './login.html';
                 }
             }
             
@@ -750,7 +842,7 @@
                 console.log(`🚨 Force logout: ${reason}`);
                 localStorage.clear();
                 sessionStorage.clear();
-                window.location.href = 'login.html';
+                window.location.href = './login.html';
             }
             
             // Add logout button event listener when DOM is loaded
