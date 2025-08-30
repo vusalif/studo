@@ -174,7 +174,7 @@
             
             // Check if already logged in
             if (localStorage.getItem('isLoggedIn') === 'true') {
-                window.location.href = './index.html';
+                window.location.href = './';
             }
             
             // Focus on email field when page loads
@@ -217,10 +217,10 @@
                             // Verify session is properly initialized
                             if (SupabaseService.auth.isAuthenticated()) {
                                 console.log('Session verified, redirecting to app');
-                                window.location.href = './index.html';
+                                window.location.href = './';
                             } else {
                                 console.log('Session not properly initialized, but continuing with localStorage');
-                                window.location.href = './index.html';
+                                window.location.href = './';
                             }
                         }, 500); // Small delay to ensure session is properly set
                     } else {
