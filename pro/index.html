@@ -816,14 +816,25 @@
             // Set up periodic authentication checks (every 5 minutes)
             setInterval(() => {
                 console.log('🔄 Periodic authentication check...');
+                
+                // First check localStorage auth
+                const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                                   localStorage.getItem('userEmail') && 
+                                   localStorage.getItem('userId');
+                
+                if (hasLocalAuth) {
+                    console.log('✅ Periodic check: localStorage auth still valid');
+                    return; // Don't run additional checks if localStorage is valid
+                }
+                
                 if (window.SupabaseService && window.SupabaseService.auth) {
                     // Check if we still have a valid session
                     const cachedUser = window.SupabaseService.auth.getCachedUser();
                     const cachedSession = window.SupabaseService.auth.getCachedSession();
                     
                     if (!cachedUser || !cachedSession) {
-                        console.log('⚠️ Session appears to have expired, checking authentication...');
-                        checkAuthentication();
+                        console.log('⚠️ Session appears to have expired, but localStorage auth is valid');
+                        // Don't call checkAuthentication() as it might redirect
                     } else {
                         console.log('✅ Periodic check: Session still valid');
                     }
@@ -834,7 +845,18 @@
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
                     console.log('👁️ Page became visible, checking authentication...');
-                    checkAuthentication();
+                    
+                    // Only check if localStorage auth is missing
+                    const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                                       localStorage.getItem('userEmail') && 
+                                       localStorage.getItem('userId');
+                    
+                    if (!hasLocalAuth) {
+                        console.log('⚠️ No localStorage auth found on visibility change');
+                        checkAuthentication();
+                    } else {
+                        console.log('✅ localStorage auth still valid on visibility change');
+                    }
                 }
             });
             
@@ -898,30 +920,19 @@
                 const currentPath = window.location.pathname;
                 const referrer = document.referrer;
                 
-                // If user accessed the page directly (not from login), verify authentication
-                if (!referrer || !referrer.includes('login.html')) {
-                    console.log('🔒 Direct page access detected, verifying authentication...');
-                    
-                    // Double-check authentication
-                    setTimeout(() => {
-                        if (window.SupabaseService && window.SupabaseService.auth) {
-                            // Check both Supabase session and localStorage
-                            const isSupabaseAuthenticated = window.SupabaseService.auth.isAuthenticated();
-                            const hasLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
-                                               localStorage.getItem('userEmail') && 
-                                               localStorage.getItem('userId');
-                            
-                            console.log('🔍 Auth check - Supabase:', isSupabaseAuthenticated, 'Local:', hasLocalAuth);
-                            
-                            // If either authentication method is valid, allow access
-                            if (!isSupabaseAuthenticated && !hasLocalAuth) {
-                                console.log('❌ Direct access authentication failed, redirecting to login');
-                                handleUnauthorizedAccess('Direct access authentication failed');
-                            } else {
-                                console.log('✅ Authentication verified, allowing access');
-                            }
-                        }
-                    }, 1000); // Small delay to ensure SupabaseService is loaded
+                console.log('🔍 Referrer check - referrer:', referrer, 'path:', currentPath);
+                
+                // Skip direct access check if we have valid localStorage auth
+                const hasValidLocalAuth = localStorage.getItem('isLoggedIn') === 'true' && 
+                                        localStorage.getItem('userEmail') && 
+                                        localStorage.getItem('userId');
+                
+                if (hasValidLocalAuth) {
+                    console.log('✅ Valid local auth found, skipping direct access check');
+                } else {
+                    console.log('🔒 No valid local auth found, but main auth check will handle this');
+                    // The main authentication check above will handle unauthorized access
+                    // No need for additional direct access check
                 }
             });
         </script>
